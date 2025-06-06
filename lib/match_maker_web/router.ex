@@ -18,6 +18,21 @@ defmodule MatchMakerWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+
+    live "/collections", CollectionLive.Index, :index
+    live "/collections/new", CollectionLive.Index, :new
+    live "/collections/:id/edit", CollectionLive.Index, :edit
+
+    live "/collections/:id", CollectionLive.Show, :show
+    live "/collections/:id/show/edit", CollectionLive.Show, :edit
+
+    live "/items", ItemLive.Index, :index
+    live "/items/new", ItemLive.Index, :new
+    live "/items/:id/edit", ItemLive.Index, :edit
+
+    live "/items/:id", ItemLive.Show, :show
+    live "/items/:id/show/edit", ItemLive.Show, :edit
+
   end
 
   # Other scopes may use custom stacks.
