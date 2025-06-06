@@ -59,24 +59,23 @@ end
     {:noreply, assign(socket, changeset: changeset)}
   end
 
-  def handle_event("save", %{"item" => params}, socket) do
-    case socket.assigns.item do
-      %Item{id: nil} -> create(params, socket)
-      %Item{} = item -> update_item(item, params, socket)
-    end
-  end
-
   def handle_event("cancel", _params, socket) do
     send(self(), {:cancel, socket.assigns.item})
     {:noreply, socket}
   end
 
-  defp create(params, socket) do
-    case Collections.create_item(params) do
-      {:ok, _item} ->
-        send(self(), :item_saved)
-        {:noreply, reset_form(socket)}
+  def handle_event("save", %{"item" => params}, socket) do
+    case socket.assigns.item.id do
+      nil -> create_item(params, socket)
+      _id -> update_item(socket.assign.item, params, socket)
+    end
+  end
 
+  defp create_item(params, socket) do
+    case Collections.create_item(params) do
+      {:ok, item} ->
+        send(self(), {:item_saved, item})
+        {:noreply, reset_form(socket)}
       {:error, changeset} ->
         {:noreply, assign(socket, changeset: changeset)}
     end
@@ -84,10 +83,9 @@ end
 
   defp update_item(item, params, socket) do
     case Collections.update_item(item, params) do
-      {:ok, _item} ->
-        send(self(), :item_saved)
+      {:ok, updated} ->
+        send(self(), {:item_saved, updated})
         {:noreply, reset_form(socket)}
-
       {:error, changeset} ->
         {:noreply, assign(socket, changeset: changeset)}
     end

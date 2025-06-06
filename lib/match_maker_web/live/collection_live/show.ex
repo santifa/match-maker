@@ -63,6 +63,25 @@ defmodule MatchMakerWeb.CollectionLive.Show do
     end
   end
 
+  def handle_event("call_match_runner", _params, socket) do
+  # Optional: sicherstellen, dass Items geladen sind
+  collection =
+    Collections.get_collection_with_items!(socket.assigns.collection.id)
+
+  # Aufruf deiner Logik
+  case MatchMaker.MatchRunner.run(collection) do
+    :ok ->
+      {:noreply,
+       socket
+       |> put_flash(:info, "Collection wurde ausgeführt.")}
+
+    {:error, reason} ->
+      {:noreply,
+       socket
+       |> put_flash(:error, "Fehler: #{inspect(reason)}")}
+  end
+end
+
   #
   # Handle items inline
   #
@@ -71,29 +90,10 @@ defmodule MatchMakerWeb.CollectionLive.Show do
     {:noreply, assign(socket, new_item_side: String.to_existing_atom(side))}
   end
 
-  # @impl true
-  # def handle_event("cancel_new", _params, socket) do
-  #   {:noreply, assign(socket, new_item_side: nil)}
-  # end
-
   @impl true
   def handle_event("edit_item", %{"id" => id}, socket) do
     {:noreply, assign(socket, editing_item_id: String.to_integer(id))}
   end
-
-  # @impl true
-  # def handle_event("cancel_edit", _params, socket) do
-  #   {:noreply, assign(socket, editing_item_id: nil)}
-  # end
-
-  # def handle_info({:cancel_edit, item_id}, socket) do
-  #   # Nur das Bearbeitungsformular schließen
-  #   {:noreply, assign(socket, editing_item_id: nil)}
-  # end
-
-  # def handle_info(:cancel_new, socket) do
-  #   {:noreply, assign(socket, new_item_side: nil)}
-  # end
 
   @impl true
   def handle_event("delete_item", %{"id" => id}, socket) do
@@ -110,7 +110,7 @@ defmodule MatchMakerWeb.CollectionLive.Show do
 
 
   @impl true
-  def handle_info(:item_saved, socket) do
+  def handle_info({:item_saved, _item}, socket) do
     collection = Collections.get_collection_with_items!(socket.assigns.collection.id)
 
     {:noreply,

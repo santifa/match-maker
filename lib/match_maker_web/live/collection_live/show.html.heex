@@ -5,6 +5,9 @@
       <.link phx-click="edit_collection">
         <.button>Edit collection</.button>
       </.link>
+    <.link phx-click="call_match_runner">
+      <.button>▶️ Run</.button>
+    </.link>
   </:actions>
 </.header>
 
@@ -39,6 +42,7 @@
       <.link phx-click="cancel_edit_collection" class="text-sm text-gray-600">Abbrechen</.link>
     </div>
   </.form>
+
 <% else %>
   <.list>
     <:item title="Name"><%= @collection.name %></:item>
@@ -46,7 +50,6 @@
     <:item title="Webhook URL"><%= @collection.webhook_url %></:item>
     <:item title="Webhook Template"><pre class="text-sm"><%= @collection.webhook_template %></pre></:item>
   </.list>
-
 <% end %>
 
 
