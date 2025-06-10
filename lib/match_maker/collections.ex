@@ -7,6 +7,8 @@ defmodule MatchMaker.Collections do
   alias MatchMaker.Repo
 
   alias MatchMaker.Collections.Collection
+  alias MatchMaker.Collections.Match
+  alias MatchMaker.Collections.MatchAssignment
 
   @doc """
   Returns the list of collections.
@@ -203,5 +205,61 @@ defmodule MatchMaker.Collections do
   """
   def change_item(%Item{} = item, attrs \\ %{}) do
     Item.changeset(item, attrs)
+  end
+
+
+  def create_match(collection, assignments) do
+    %Match{}
+    |> Match.changeset(%{collection_id: collection.id})
+    |> Repo.insert()
+    |> case do
+      {:ok, match} ->
+        match_assignments =
+          Enum.map(assignments, fn {right_id, left_id} ->
+            %{
+              match_id: match.id,
+              right_item_id: right_id,
+              left_item_id: left_id,
+              inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
+              updated_at: DateTime.truncate(DateTime.utc_now(), :second),
+            }
+          end)
+
+        Repo.insert_all(MatchAssignment, match_assignments)
+        {:ok, match}
+
+      error ->
+        error
+    end
+  end
+
+  def validate_item_pair(%Match{} = match, %Item{} = left, %Item{} = right) do
+    cond do
+      left.collection_id != right.collection_id ->
+        {:error, :mismatched_collections}
+
+      left.collection_id != match.collection_id ->
+        {:error, :not_part_of_match_collection}
+
+      true ->
+        :ok
+    end
+  end
+
+  def get_last_match_with_assignments(collection_id) do
+    Match
+    |> where([m], m.collection_id == ^collection_id)
+    |> order_by([m], desc: m.inserted_at)
+    |> preload(match_assignments: [:left_item, :right_item])
+    |> limit(1)
+    |> Repo.one()
+  end
+
+  def list_matches_with_assignments(collection_id) do
+    Match
+    |> where([m], m.collection_id == ^collection_id)
+    |> order_by(desc: :inserted_at)
+    |> preload(match_assignments: [:left_item, :right_item])
+    |> Repo.all()
   end
 end

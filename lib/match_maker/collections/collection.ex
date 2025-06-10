@@ -18,6 +18,8 @@ defmodule MatchMaker.Collections.Collection do
              foreign_key: :collection_id,
              where: [side: :right]
 
+    has_many :matches, MatchMaker.Collections.Match
+
     timestamps(type: :utc_datetime)
   end
 

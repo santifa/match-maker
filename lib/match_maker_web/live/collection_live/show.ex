@@ -3,11 +3,15 @@ defmodule MatchMakerWeb.CollectionLive.Show do
 
   alias MatchMaker.Collections
   alias MatchMaker.Collections.Item
+  alias MatchMaker.MatchRunner
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
     collection = Collections.get_collection_with_items!(id)
     changeset = Collections.change_collection(collection)
+
+    last_match = Collections.get_last_match_with_assignments(collection.id)
+    matches = Collections.list_matches_with_assignments(collection.id)
 
     {:ok,
      socket
@@ -16,7 +20,9 @@ defmodule MatchMakerWeb.CollectionLive.Show do
      |> assign(:editing_item_id, nil)
      |> assign(:new_item_side, nil)
      |> assign(:editing_collection, false)
-     |> assign(collection_changeset: changeset)}
+     |> assign(collection_changeset: changeset)
+     |> assign(last_match: last_match)
+    |> assign(matches: matches)}
   end
 
   @impl true
@@ -68,19 +74,22 @@ defmodule MatchMakerWeb.CollectionLive.Show do
   collection =
     Collections.get_collection_with_items!(socket.assigns.collection.id)
 
-  # Aufruf deiner Logik
-  case MatchMaker.MatchRunner.run(collection) do
-    :ok ->
-      {:noreply,
-       socket
-       |> put_flash(:info, "Collection wurde ausgeführt.")}
+    case MatchRunner.run(collection) do
+      {:ok, _match} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Matching erfolgreich erstellt.")}
 
-    {:error, reason} ->
-      {:noreply,
-       socket
-       |> put_flash(:error, "Fehler: #{inspect(reason)}")}
+      {:error, :mismatched_collections} ->
+        {:noreply, put_flash(socket, :error, "Left und Right Items gehören nicht zur gleichen Collection.")}
+
+      {:error, :not_part_of_match_collection} ->
+        {:noreply, put_flash(socket, :error, "Mindestens ein Item gehört nicht zur aktuellen Collection.")}
+
+      {:error, reason} ->
+        {:noreply, put_flash(socket, :error, "Unbekannter Fehler: #{inspect(reason)}")}
+    end
   end
-end
 
   #
   # Handle items inline
