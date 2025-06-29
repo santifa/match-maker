@@ -22,7 +22,7 @@ defmodule MatchMakerWeb.CollectionLive.Show do
      |> assign(:editing_collection, false)
      |> assign(collection_changeset: changeset)
      |> assign(last_match: last_match)
-    |> assign(matches: matches)}
+     |> assign(matches: matches)}
   end
 
   @impl true

@@ -262,4 +262,10 @@ defmodule MatchMaker.Collections do
     |> preload(match_assignments: [:left_item, :right_item])
     |> Repo.all()
   end
+
+  def list_collections_with_stats() do
+    Repo.all(Collection)
+    |> Repo.preload([:left_items, :right_items])
+  end
+
 end

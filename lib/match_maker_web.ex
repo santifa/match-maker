@@ -88,7 +88,7 @@ defmodule MatchMakerWeb do
       # HTML escaping functionality
       import Phoenix.HTML
       # Core UI components
-      import MatchMakerWeb.CoreComponents
+      use MatchMakerWeb.Components.MishkaComponents
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS

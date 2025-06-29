@@ -1,4 +1,5 @@
 defmodule MatchMakerWeb.Router do
+  alias MatchMakerWeb.CollectionLive
   use MatchMakerWeb, :router
 
   pipeline :browser do
@@ -17,7 +18,8 @@ defmodule MatchMakerWeb.Router do
   scope "/", MatchMakerWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    live "/", DashboardLive, :index
+    # get "/", PageController, :home
 
     live "/collections", CollectionLive.Index, :index
     live "/collections/new", CollectionLive.Index, :new
@@ -26,12 +28,12 @@ defmodule MatchMakerWeb.Router do
     live "/collections/:id", CollectionLive.Show, :show
     live "/collections/:id/show/edit", CollectionLive.Show, :edit
 
-    live "/items", ItemLive.Index, :index
-    live "/items/new", ItemLive.Index, :new
-    live "/items/:id/edit", ItemLive.Index, :edit
+    # live "/items", ItemLive.Index, :index
+    # live "/items/new", ItemLive.Index, :new
+    # live "/items/:id/edit", ItemLive.Index, :edit
 
-    live "/items/:id", ItemLive.Show, :show
-    live "/items/:id/show/edit", ItemLive.Show, :edit
+    # live "/items/:id", ItemLive.Show, :show
+    # live "/items/:id/show/edit", ItemLive.Show, :edit
 
   end
 

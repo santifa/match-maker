@@ -1,32 +1,40 @@
-<header class="px-4 sm:px-6 lg:px-8">
-  <div class="flex items-center justify-between border-b border-zinc-100 py-3 text-sm">
-    <div class="flex items-center gap-4">
-      <a href="/">
-        <img src={~p"/images/logo.svg"} width="36" />
-      </a>
-      <p class="bg-brand/5 text-brand rounded-full px-2 font-medium leading-6">
-        v{Application.spec(:phoenix, :vsn)}
-      </p>
+<div class="ml-64 flex flex-col min-h-screen">
+  <header class="bg-white border-b px-6 py-4 shadow flex items-center">
+    <h1 class="text-2xl font-bold text-gray-800">MatchMaker</h1>
+  </header>
+
+  <main class="flex-1 p-6">
+    <.sidebar id="sidebar" variant="default" color="dark" hide_position="left"
+      size="extra_small" minimize >
+      <:item
+        icon="hero-queue-list"
+        icon_class="text-gray-400"
+        label="List collections"
+        label_class="text-sm text-gray-200"
+        link={~p"/collections"}
+        class="pt-2 px-3 py-2 hover:bg-gray-700 hover:text-white rounded transition-colors duration-150"}
+      />
+
+      <:item
+        icon="hero-plus"
+        icon_class="text-gray-400"
+        label="Create new collection"
+        label_class="text-sm text-gray-200"
+        link={~p"/collections/new"}
+        class="pt-2 px-3 py-2 hover:bg-gray-700 hover:text-white rounded transition-colors duration-150"}
+      />
+    </.sidebar>
+
+    <div class="mx-auto max-w-2xl">
+      <.flash_group flash={@flash} />
     </div>
-    <div class="flex items-center gap-4 font-semibold leading-6 text-zinc-900">
-      <a href="https://twitter.com/elixirphoenix" class="hover:text-zinc-700">
-        @elixirphoenix
-      </a>
-      <a href="https://github.com/phoenixframework/phoenix" class="hover:text-zinc-700">
-        GitHub
-      </a>
-      <a
-        href="https://hexdocs.pm/phoenix/overview.html"
-        class="rounded-lg bg-zinc-100 px-2 py-1 hover:bg-zinc-200/80"
-      >
-        Get Started <span aria-hidden="true">&rarr;</span>
-      </a>
+
+    <div class="mx-auto max-w-4xl flex flex-col">
+      {@inner_content}
     </div>
-  </div>
-</header>
-<main class="px-4 py-20 sm:px-6 lg:px-8">
-  <div class="mx-auto max-w-2xl">
-    <.flash_group flash={@flash} />
-    {@inner_content}
-  </div>
-</main>
+  </main>
+
+  <.footer variant="transparent" color="dark" text_position="center" padding="medium">
+    &copy; <%= Date.utc_today().year %> MatchMaker. All rights reserved.
+  </.footer>
+</div>

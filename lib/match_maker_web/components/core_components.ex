@@ -41,7 +41,7 @@ defmodule MatchMakerWeb.CoreComponents do
   attr :on_cancel, JS, default: %JS{}
   slot :inner_block, required: true
 
-  def modal(assigns) do
+  def core_modal(assigns) do
     ~H"""
     <div
       id={@id}
