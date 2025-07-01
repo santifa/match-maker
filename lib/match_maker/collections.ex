@@ -39,7 +39,6 @@ defmodule MatchMaker.Collections do
   """
   def get_collection!(id), do: Repo.get!(Collection, id)
 
-
   def get_collection_with_items!(id) do
     Collection
     |> Repo.get!(id)
@@ -207,7 +206,6 @@ defmodule MatchMaker.Collections do
     Item.changeset(item, attrs)
   end
 
-
   def create_match(collection, assignments) do
     %Match{}
     |> Match.changeset(%{collection_id: collection.id})
@@ -221,7 +219,7 @@ defmodule MatchMaker.Collections do
               right_item_id: right_id,
               left_item_id: left_id,
               inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
-              updated_at: DateTime.truncate(DateTime.utc_now(), :second),
+              updated_at: DateTime.truncate(DateTime.utc_now(), :second)
             }
           end)
 
@@ -264,8 +262,25 @@ defmodule MatchMaker.Collections do
   end
 
   def list_collections_with_stats() do
-    Repo.all(Collection)
-    |> Repo.preload([:left_items, :right_items])
-  end
+    collections =
+      Repo.all(Collection)
+      |> Repo.preload([:left_items, :right_items])
 
+    Enum.map(
+      collections,
+      fn c ->
+        case get_last_match_with_assignments(c.id) do
+          nil ->
+            c
+            |> Map.put(:last_match, nil)
+            |> Map.put(:last_match_run, "Not run")
+
+          e ->
+            c
+            |> Map.put(:last_match, e)
+            |> Map.put(:last_match_run, e.inserted_at |> Calendar.strftime("%d.%m.%Y %H:%M"))
+        end
+      end
+    )
+  end
 end

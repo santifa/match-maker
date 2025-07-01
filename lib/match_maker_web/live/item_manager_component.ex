@@ -128,12 +128,11 @@ defmodule MatchMakerWeb.ItemManagerComponent do
           </.td>
         </.tr>
 
-      <%= if @editing_item && @editing_item.id == item.id do %>
-      <.tr>
-
-        <.td colspan="3">Item bearbeiten</.td>
-      </.tr>
-      <.form_wrapper
+        <%= if @editing_item && @editing_item.id == item.id do %>
+          <.tr>
+            <.td colspan="3">Item bearbeiten</.td>
+          </.tr>
+          <.form_wrapper
             :let={f}
             for={@editing_changeset}
             phx-submit="update_item"
@@ -142,10 +141,10 @@ defmodule MatchMakerWeb.ItemManagerComponent do
           >
             <.tr>
               <.td>
-                <.text_field label="Name" field={f[:name]} />
+                <.text_field label="Name" field={f[:name]} placeholder="Name" />
               </.td>
               <.td>
-                <.text_field label="Description" field={f[:description]} />
+                <.text_field label="Description" field={f[:description]} placeholder="Description" />
               </.td>
               <.td>
                 <.input type="hidden" field={f[:id]} />
@@ -177,8 +176,8 @@ defmodule MatchMakerWeb.ItemManagerComponent do
         class="mt-4"
       >
         <div class="grid grid-cols-2 gap-4">
-          <.text_field label="Name" field={f[:name]} />
-          <.text_field label="Description" field={f[:description]} />
+          <.text_field label="Name" field={f[:name]} placeholder="Name" />
+          <.text_field label="Description" field={f[:description]} placeholder="Description" />
         </div>
         <.input type="hidden" field={f[:side]} value={@side} />
         <.input type="hidden" field={f[:collection_id]} value={@collection_id} />
@@ -216,6 +215,7 @@ defmodule MatchMakerWeb.ItemManagerComponent do
   def handle_event("save_item", %{"item" => item_params}, socket) do
     case Collections.create_item(item_params) do
       {:ok, _item} ->
+        send(self(), {:reload_collection, socket.assigns.collection.id})
         reload_collection(socket.assigns.collection.id, socket)
 
       {:error, changeset} ->

@@ -30,10 +30,10 @@ defmodule MatchMakerWeb.CollectionFormComponent do
           phx-submit="save"
           :let={f}
         >
-          <.text_field  field={f[:name]} label="Name" placeholder="Collection" required />
-          <.text_field field={f[:description]} label="Description" />
+          <.text_field  field={f[:name]} label="Name" placeholder="Collection Name" required />
+          <.text_field field={f[:description]} label="Description" placeholder="Description" />
           <.url_field field={f[:webhook_url]} label="Webhook URL" placeholder="https://example.com" />
-          <.text_field field={f[:webhook_template]} label="Webhook Template" />
+          <.text_field field={f[:webhook_template]} label="Webhook Template" placeholder="{ ... }" />
           <.button class="mt-4" type="submit">Speichern</.button>
         </.form_wrapper>
       </.modal>

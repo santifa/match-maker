@@ -6,3 +6,7 @@
 .outline-thin * {
     outline-width: thin;
 }
+
+input::placeholder {
+    opacity: 0.5; /* Firefox */
+}

@@ -2,35 +2,72 @@
   <%= for collection <- @collections do %>
     <.card variant="outline" color="dark" rounded="large" padding="medium">
       <.card_title position="start">{collection.name}</.card_title>
-      <.divider type="dashed" />
       <.card_content space="medium" padding="none">
+        <.divider type="dashed" />
 
         <.flex gap="small">
-          <.p class="text-sm grow">{collection.description || "No Description"}</.p>
-
+          <.p class="grow" font_weigth="font-light">
+            {collection.description || "No Description"}
+          </.p>
           <.badge rounded="extra_large">Webhook: {collection.webhook_url}</.badge>
-          <.badge rounded="extra_large" icon="hero-user">People: {Enum.count(collection.left_items)}</.badge>
-          <.badge rounded="extra_large" icon="hero-queue-list">Tasks: {Enum.count(collection.right_items)}</.badge>
-
+          <.badge rounded="extra_large" icon="hero-user">
+            People: {Enum.count(collection.left_items)}
+          </.badge>
+          <.badge rounded="extra_large" icon="hero-queue-list">
+            Tasks: {Enum.count(collection.right_items)}
+          </.badge>
         </.flex>
 
-        <div class="flex gap-2">
-          <.button phx-click="run" phx-value-id={collection.id} class="bg-indigo-600 text-white">
-            Match starten
+        <.divider type="dashed" />
+        <.accordion id={"latest-match-#{collection.id}"}>
+          <:item title="Last Match" description={"Last run: #{collection.last_match_run}"}>
+            <div class="grid grid-cols-2">
+              <div class="grid grid-cols-3 gap-4">
+                <.strong>People</.strong>
+                <.strong>-></.strong>
+                <.strong>Task</.strong>
+
+                <%= if collection.last_match do %>
+                  <%= for assignments <- collection.last_match.match_assignments do %>
+                    <.strong>{assignments.left_item.name}</.strong>
+                    <.strong>-></.strong>
+                    <.strong>{assignments.right_item.name}</.strong>
+                  <% end %>
+                <% end %>
+              </div>
+            </div>
+          </:item>
+        </.accordion>
+
+        <.flex gap="small">
+          <.button
+            phx-click="run_match"
+            phx-value-id={collection.id}
+            class="bg-indigo-600 text-white"
+          >
+            Run matching
           </.button>
-          <.button phx-click="edit_collection" phx-value-id={collection.id}>Bearbeiten</.button>
-          <.button phx-click="edit_items" phx-value-id={collection.id}>Items bearbeiten</.button>
-          <.button phx-click="delete_collection" phx-value-id={collection.id}>Löschen</.button>
-        </div>
+          <.button phx-click="show_matches" phx-value-id={collection.id} class="mr-6">
+            Show matches
+          </.button>
+          <.button phx-click="edit_collection" phx-value-id={collection.id}>
+            Edit collection
+          </.button>
+          <.button phx-click="edit_items" phx-value-id={collection.id}>Edit items</.button>
+          <.button phx-click="delete_collection" phx-value-id={collection.id}>
+            Delete collection
+          </.button>
+        </.flex>
       </.card_content>
     </.card>
   <% end %>
 
-  <!-- Create a new collection -->
-  <.card variant="outline" color="dark" rounded="large" padding="medium"
-  font_weight="font-light">
+<!-- Create a new collection -->
+  <.card variant="outline" color="dark" rounded="large" padding="medium" font_weight="font-light">
     <.card_title space="medium" padding="medium" position="center">
-      <.button phx-click="new_collection" icon="hero-plus-circle" >Neue Collection anlegen</.button>
+      <.button phx-click="new_collection" icon="hero-plus-circle">
+        Neue Collection anlegen
+      </.button>
     </.card_title>
   </.card>
 
