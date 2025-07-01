@@ -16,3 +16,28 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
   * Docs: https://hexdocs.pm/phoenix
   * Forum: https://elixirforum.com/c/phoenix-forum
   * Source: https://github.com/phoenixframework/phoenix
+
+
+```
++----------------+          +--------------+          +----------------+
+|  collections   |<>------->|   items      |          |    matches     |
+|----------------|          |--------------|<---------+----------------+
+| id             |          | id           |          | id             |
+| name           |          | name         |          | collection_id  |
+| description?   |          | description  |          | timestamps     |
+| webhook_url    |          | side         |          +----------------+
+| webhook_tpl    |          | collection_id|          |
+| timestamps     |          | timestamps   |          |
++----------------+          +--------------+          |
+                                                      |
+                                                      v
+                                          +----------------------+
+                                          |   match_assignments  |
+                                          |----------------------|
+                                          | id                   |
+                                          | match_id             |
+                                          | left_item_id         |
+                                          | right_item_id        |
+                                          | timestamps           |
+                                          +----------------------+
+```

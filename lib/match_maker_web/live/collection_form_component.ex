@@ -16,11 +16,12 @@ defmodule MatchMakerWeb.CollectionFormComponent do
 
   def render(assigns) do
     ~H"""
-    <div>>
+    <div>
       <.modal
         id="collection-modal"
         show={@show_modal}
         on_cancel={JS.push("close_modal")}
+        title={@collection.name}
       >
         <.form_wrapper
           for={@changeset}
@@ -29,7 +30,7 @@ defmodule MatchMakerWeb.CollectionFormComponent do
           phx-submit="save"
           :let={f}
         >
-          <.text_field field={f[:name]} label="Name" placeholder="Collection" required />
+          <.text_field  field={f[:name]} label="Name" placeholder="Collection" required />
           <.text_field field={f[:description]} label="Description" />
           <.url_field field={f[:webhook_url]} label="Webhook URL" placeholder="https://example.com" />
           <.text_field field={f[:webhook_template]} label="Webhook Template" />

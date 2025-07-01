@@ -1,37 +1,40 @@
-<div class="space-y-6 mt-6 flex flex-col gap">
+<div class="space-y-6 mt-6 flex flex-col gap outline-thin">
   <%= for collection <- @collections do %>
     <.card variant="outline" color="dark" rounded="large" padding="medium">
-      <.card_title position="start"><%= collection.name %></.card_title>
+      <.card_title position="start">{collection.name}</.card_title>
       <.divider type="dashed" />
       <.card_content space="medium" padding="none">
-      <p class="text-sm"><%= collection.description || "Keine Beschreibung" %></p>
-      <p class="text-sm">🔗 Webhook: <%= collection.webhook_url %></p>
 
-      <div class="flex gap-4 text-sm">
-        <span>⬅️ Left Items: <%= Enum.count(collection.left_items) %></span>
-        <span>➡️ Right Items: <%= Enum.count(collection.right_items) %></span>
-      </div>
+        <.flex gap="small">
+          <.p class="text-sm grow">{collection.description || "No Description"}</.p>
 
-      <div class="flex gap-2">
-        <.button phx-click="edit_collection" phx-value-id={collection.id}>Bearbeiten</.button>
-        <.button phx-click="run" phx-value-id={collection.id} class="bg-indigo-600 text-white">Match starten</.button>
-      </div>
+          <.badge rounded="extra_large">Webhook: {collection.webhook_url}</.badge>
+          <.badge rounded="extra_large" icon="hero-user">People: {Enum.count(collection.left_items)}</.badge>
+          <.badge rounded="extra_large" icon="hero-queue-list">Tasks: {Enum.count(collection.right_items)}</.badge>
+
+        </.flex>
+
+        <div class="flex gap-2">
+          <.button phx-click="run" phx-value-id={collection.id} class="bg-indigo-600 text-white">
+            Match starten
+          </.button>
+          <.button phx-click="edit_collection" phx-value-id={collection.id}>Bearbeiten</.button>
+          <.button phx-click="edit_items" phx-value-id={collection.id}>Items bearbeiten</.button>
+          <.button phx-click="delete_collection" phx-value-id={collection.id}>Löschen</.button>
+        </div>
       </.card_content>
     </.card>
   <% end %>
 
-  <!-- Neue Collection Card -->
-  <.card variant="outline" color="dark" padding="large">
+  <!-- Create a new collection -->
+  <.card variant="outline" color="dark" rounded="large" padding="medium"
+  font_weight="font-light">
     <.card_title space="medium" padding="medium" position="center">
-      <.button phx-click="new_collection" variant="outline">➕ Neue Collection anlegen</.button>
+      <.button phx-click="new_collection" icon="hero-plus-circle" >Neue Collection anlegen</.button>
     </.card_title>
-    </.card>
+  </.card>
 
   <%= if @show_modal do %>
-  <p class="text-red-600 font-bold">MODAL ON</p>
-  <% end %>
-
-<%= if @show_modal do %>
     <.live_component
       module={MatchMakerWeb.CollectionFormComponent}
       id="collection-form"
@@ -40,5 +43,15 @@
       show_modal={@show_modal}
     />
   <% end %>
+
+  <%= if @show_item_modal do %>
+    <.live_component
+      module={MatchMakerWeb.ItemManagerComponent}
+      id="item-form"
+      collection={@collection}
+      show_item_modal={@show_item_modal}
+    />
+  <% end %>
+
   <div id="scroll-restorer" phx-hook="RestoreScroll" />
 </div>

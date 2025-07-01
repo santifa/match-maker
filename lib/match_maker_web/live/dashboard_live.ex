@@ -11,14 +11,13 @@ defmodule MatchMakerWeb.DashboardLive do
      socket
      |> assign(:collections, collections)
      |> assign(:show_modal, false)
+     |> assign(:show_item_modal, false)
      |> assign(:form_action, :new)
      |> assign(:collection, %Collections.Collection{})
     }
   end
 
-
   def handle_event("new_collection", _, socket) do
-
     {:noreply,
      socket
      |> assign(:show_modal, true)
@@ -30,42 +29,26 @@ defmodule MatchMakerWeb.DashboardLive do
   @impl true
   def handle_event("edit_collection", %{"id" => id}, socket) do
     collection = Collections.get_collection!(id)
-    changeset = Collections.change_collection(collection)
 
     {:noreply,
      socket
      |> assign(:show_modal, true)
      |> assign(:form_action, :edit)
      |> assign(:collection, collection)
-     # |> assign(:collection_changeset, changeset)
     }
   end
 
-  # @impl true
-  # def handle_event("validate_collection", %{"collection" => params}, socket) do
-  #   changeset =
-  #     socket.assigns.collection_changeset
-  #     |> Collections.change_collection(params)
-  #     |> Map.put(:action, :validate)
+  @impl true
+  def handle_event("delete_collection", %{"id" => id}, socket) do
+    collection = Collections.get_collection!(id)
+    Collections.delete_collection(collection)
+    collections = Collections.list_collections_with_stats()
 
-  #   {:noreply, assign(socket, collection_changeset: changeset)}
-  # end
-
-  # @impl true
-  # def handle_event("save_collection", %{"collection" => params}, socket) do
-  #   case Collections.update_collection(socket.assigns.collection, params) do
-  #     {:ok, updated} ->
-  #       {:noreply,
-  #        socket
-  #        |> put_flash(:info, "Collection gespeichert.")
-  #        |> assign(collection: updated)
-  #        |> assign(editing_collection: false)
-  #        |> assign(collection_changeset: Collections.change_collection(updated))}
-
-  #     {:error, changeset} ->
-  #       {:noreply, assign(socket, collection_changeset: changeset)}
-  #   end
-  # end
+    {:noreply,
+     socket
+     |> put_flash(:info, "Collection gelöscht.")
+     |> assign(:collections, collections)}
+  end
 
   @impl true
   def handle_event("close_modal", _, socket) do
@@ -74,6 +57,25 @@ defmodule MatchMakerWeb.DashboardLive do
      |> assign(:show_modal, false)
      |> push_event("close_modal", %{id: "collection-modal"})
      |> push_event("restore_scroll", %{})
+    }
+  end
+
+  @impl true
+  def handle_event("edit_items", %{"id" => id}, socket) do
+    collection = Collections.get_collection_with_items!(id)
+
+    {:noreply,
+     socket
+     |> assign(:show_item_modal, true)
+     |> assign(:collection, collection)
+    }
+  end
+
+  @impl true
+  def handle_event("close_item_modal", _, socket) do
+    {:noreply,
+     socket
+     |> assign(:show_item_modal, false)
     }
   end
 
@@ -88,7 +90,18 @@ defmodule MatchMakerWeb.DashboardLive do
      |> assign(:form_action, :new)
      |> assign(:collection, %Collections.Collection{})
      |> assign(:show_modal, false)
-    |> push_event("restore_scroll", %{})}
-end
+     |> push_event("restore_scroll", %{})}
+  end
 
+  @impl true
+  def handle_info({:reload_collection, id}, socket) do
+    collections = Collections.list_collections_with_stats()
+    collection = Collections.get_collection_with_items!(id)
+
+    {:noreply,
+     socket
+     |> assign(:collections, collections)
+     |> assign(:collection, collection)
+     |> assign(:show_item_modal, true)}
+  end
 end
