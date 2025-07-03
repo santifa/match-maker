@@ -16,11 +16,17 @@
           <.badge rounded="extra_large" icon="hero-queue-list">
             Tasks: {Enum.count(collection.right_items)}
           </.badge>
+         <%= if collection.cron_expression do %>
+          <.badge rounded="extra_large" icon="hero-clock">
+            Schedule: {collection.cron_expression}
+          </.badge>
+          <% end %>
         </.flex>
 
         <.divider type="dashed" />
         <.accordion id={"latest-match-#{collection.id}"}>
           <:item title="Last Match" description={"Last run: #{collection.last_match_run}"}>
+
             <div class="grid grid-cols-2">
               <div class="grid grid-cols-3 gap-4">
                 <.strong>People</.strong>
