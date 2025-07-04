@@ -26,7 +26,12 @@ defmodule MatchMaker.Application do
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: MatchMaker.Supervisor]
-    Supervisor.start_link(children, opts)
+    tree = Supervisor.start_link(children, opts)
+
+    # Start cron jobs for matchings
+    Task.start(fn -> MatchMaker.Cron.register_all_cron_jobs() end)
+    # Return the supervision tree
+    tree
   end
 
   # Tell Phoenix to update the endpoint configuration

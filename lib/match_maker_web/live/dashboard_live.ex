@@ -43,7 +43,6 @@ alias MatchMaker.MatchRunner
     }
   end
 
-
   @impl true
   def handle_event("close_matches_modal", _, socket) do
     {:noreply,

@@ -57,7 +57,8 @@ defmodule MatchMakerWeb.CollectionFormComponent do
 
   defp save_collection(socket, :new, params) do
     case Collections.create_collection(params) do
-      {:ok, _collection} ->
+      {:ok, collection} ->
+        MatchMaker.Cron.register_cron_for_collection(collection)
         send(self(), :collection_saved)
         {:noreply, socket}
 
@@ -68,7 +69,8 @@ defmodule MatchMakerWeb.CollectionFormComponent do
 
   defp save_collection(socket, :edit, params) do
     case Collections.update_collection(socket.assigns.collection, params) do
-      {:ok, _collection} ->
+      {:ok, collection} ->
+        MatchMaker.Cron.refresh_cron_for_collection(collection)
         send(self(), :collection_saved)
         {:noreply, socket}
 
