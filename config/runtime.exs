@@ -20,17 +20,17 @@ if System.get_env("PHX_SERVER") do
   config :match_maker, MatchMakerWeb.Endpoint, server: true
 end
 
-if config_env() == :dev do
+if config_env() == :prod do
   database_path =
-    System.get_env("DATABASE_PATH") ||
+    System.get_env("DATABASE_URL") ||
       raise """
       environment variable DATABASE_PATH is missing.
       For example: /etc/match_maker/match_maker.db
       """
 
   config :match_maker, MatchMaker.Repo,
-    database: database_path,
-    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "5")
+    url: database_path,
+    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "2")
 
   # The secret key base is used to sign/encrypt cookies and other secrets.
   # A default value is used in config/dev.exs and config/test.exs but you
