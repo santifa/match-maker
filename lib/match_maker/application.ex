@@ -29,7 +29,7 @@ defmodule MatchMaker.Application do
     tree = Supervisor.start_link(children, opts)
 
     # Start cron jobs for matchings
-    Task.start(fn -> MatchMaker.Cron.register_all_cron_jobs() end)
+    # Task.start(fn -> MatchMaker.Cron.register_all_cron_jobs() end)
     # Return the supervision tree
     tree
   end
