@@ -37,10 +37,12 @@ defmodule MatchMakerWeb.DashboardLive do
 
   def handle_event("show_matches", %{"id" => id}, socket) do
     matches = Collections.list_matches_with_assignments(id)
+    collection = Collections.get_collection!(id)
 
     {:noreply,
      socket
      |> assign(:matches, matches)
+     |> assign(:collection, collection)
      |> assign(:show_matches_modal, true)}
   end
 

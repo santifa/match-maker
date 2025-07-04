@@ -54,10 +54,10 @@
           >
             Run matching
           </.button>
-          <.button phx-click="show_matches" phx-value-id={collection.id} class="mr-6">
-            Show matches
-          </.button>
-          <.button phx-click="edit_collection" phx-value-id={collection.id}>
+          <!-- <.button phx-click="show_matches" phx-value-id={collection.id}"> -->
+          <!--   Show matches -->
+          <!-- </.button> -->
+          <.button phx-click="edit_collection" phx-value-id={collection.id} class="ml-6">
             Edit collection
           </.button>
           <.button phx-click="edit_items" phx-value-id={collection.id}>Edit items</.button>
@@ -96,6 +96,19 @@
       show_item_modal={@show_item_modal}
     />
   <% end %>
+
+  <%= if @show_matches_modal do %>
+    <.live_component
+      module={MatchMakerWeb.MatchViewerComponent}
+      id="matches-view"
+      collection={@collection}
+      matches={@matches}
+      show_matches_modal={@show_matches_modal}
+    />
+  <p>Modal on</p>
+  <% end %>
+
+
 
   <div id="scroll-restorer" phx-hook="RestoreScroll" />
 </div>
