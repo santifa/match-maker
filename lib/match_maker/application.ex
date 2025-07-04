@@ -28,8 +28,8 @@ defmodule MatchMaker.Application do
     opts = [strategy: :one_for_one, name: MatchMaker.Supervisor]
     tree = Supervisor.start_link(children, opts)
 
-    # Start cron jobs for matchings
-    # Task.start(fn -> MatchMaker.Cron.register_all_cron_jobs() end)
+    # Start cron jobs for matchings, a working database is needed for this step
+    Task.start(fn -> MatchMaker.Cron.register_all_cron_jobs() end)
     # Return the supervision tree
     tree
   end
