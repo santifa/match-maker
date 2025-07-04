@@ -3,7 +3,6 @@ defmodule MatchMaker.Cron do
   alias MatchMaker.MatchRunner
   alias MatchMaker.Collections.Collection
 
-
   def register_cron_for_collection(%{id: _id, cron_expression: nil}), do: :noop
 
   def register_cron_for_collection(%Collection{id: id, cron_expression: expr} = _collection) do
@@ -13,7 +12,6 @@ defmodule MatchMaker.Cron do
     options = %{max_runtime_ms: 1000}
     {:ok, ^job_name} = :ecron.create(job_name, expr, mfa, options)
   end
-
 
   def remove_cron_for_collection(%Collection{id: id} = _collection) do
     job_name = "collection_#{id}_cron"
@@ -36,9 +34,7 @@ defmodule MatchMaker.Cron do
     end
   end
 
-
   def run_job(collection) do
     MatchRunner.run(collection)
   end
-
 end

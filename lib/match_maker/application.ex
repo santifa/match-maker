@@ -11,8 +11,7 @@ defmodule MatchMaker.Application do
       MatchMakerWeb.Telemetry,
       MatchMaker.Repo,
       {Ecto.Migrator,
-        repos: Application.fetch_env!(:match_maker, :ecto_repos),
-        skip: skip_migrations?()},
+       repos: Application.fetch_env!(:match_maker, :ecto_repos), skip: skip_migrations?()},
       {DNSCluster, query: Application.get_env(:match_maker, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: MatchMaker.PubSub},
       # Start the Finch HTTP client for sending emails

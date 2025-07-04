@@ -40,25 +40,26 @@ defmodule MatchMaker.MatchRunner do
     end)
   end
 
-
   def maybe_send_webhook(%{webhook_url: nil}, _), do: :noop
   def maybe_send_webhook(%{webhook_url: ""}, _), do: :noop
 
   def maybe_send_webhook(%{webhook_url: url}, assignments) do
-    IO.inspect assignments
+    IO.inspect(assignments)
 
     body =
       %{
         content:
           Enum.join(
-          Enum.map(assignments, fn {r, l} ->
-            r = Collections.get_item!(r)
-            l = Collections.get_item!(l)
+            Enum.map(assignments, fn {r, l} ->
+              r = Collections.get_item!(r)
+              l = Collections.get_item!(l)
 
-            if r do
-              "#{l.name} -> #{r.name}"
-            end
-          end), "\n")
+              if r do
+                "#{l.name} -> #{r.name}"
+              end
+            end),
+            "\n"
+          )
       }
       |> Jason.encode!()
 
