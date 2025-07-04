@@ -14,10 +14,6 @@ defmodule MatchMaker.Cron do
     {:ok, ^job_name} = :ecron.create(job_name, expr, mfa, options)
   end
 
-  def run_job(collection) do
-    MatchRunner.run(collection)
-  end
-
 
   def remove_cron_for_collection(%Collection{id: id} = _collection) do
     job_name = "collection_#{id}_cron"
@@ -39,4 +35,10 @@ defmodule MatchMaker.Cron do
       register_cron_for_collection(collection)
     end
   end
+
+
+  def run_job(collection) do
+    MatchRunner.run(collection)
+  end
+
 end

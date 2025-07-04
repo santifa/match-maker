@@ -1,6 +1,7 @@
 defmodule MatchMaker.MatchRunner do
   alias MatchMaker.Collections
   alias MatchMaker.Collections.Match
+  require Logger
 
   def run(collection) do
     left_items = collection.left_items
@@ -20,7 +21,9 @@ defmodule MatchMaker.MatchRunner do
           end)
 
         with :ok <- validate_all_pairs(collection, assignments) do
-          Collections.create_match(collection, assignments)
+          match = Collections.create_match(collection, assignments)
+          maybe_send_webhook(collection, assignments)
+          match
         end
     end
   end
@@ -35,5 +38,44 @@ defmodule MatchMaker.MatchRunner do
         {:error, reason} -> {:halt, {:error, reason}}
       end
     end)
+  end
+
+
+  def maybe_send_webhook(%{webhook_url: nil}, _), do: :noop
+  def maybe_send_webhook(%{webhook_url: ""}, _), do: :noop
+
+  def maybe_send_webhook(%{webhook_url: url}, assignments) do
+    IO.inspect assignments
+
+    body =
+      %{
+        content:
+          Enum.join(
+          Enum.map(assignments, fn {r, l} ->
+            r = Collections.get_item!(r)
+            l = Collections.get_item!(l)
+
+            if r do
+              "#{l.name} -> #{r.name}"
+            end
+          end), "\n")
+      }
+      |> Jason.encode!()
+
+    request =
+      Finch.build(:post, url, [{"content-type", "application/json"}], body)
+
+    case Finch.request(request, MatchMaker.Finch) do
+      {:ok, %Finch.Response{status: code}} when code in 200..299 ->
+        :ok
+
+      {:ok, %Finch.Response{status: code, body: body}} ->
+        Logger.error("Webhook returned #{code}: #{body}")
+        {:error, :unexpected_response}
+
+      {:error, reason} ->
+        Logger.error("Webhook failed: #{inspect(reason)}")
+        {:error, reason}
+    end
   end
 end
