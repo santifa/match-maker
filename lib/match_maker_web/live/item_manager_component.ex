@@ -66,7 +66,7 @@ defmodule MatchMakerWeb.ItemManagerComponent do
             variant="subtle"
             color="misc"
           >
-            Neu
+            New
           </.button>
           <.button
             phx-click="new_item"
@@ -76,7 +76,7 @@ defmodule MatchMakerWeb.ItemManagerComponent do
             variant="subtle"
             color="misc"
           >
-            Neu
+            New
           </.button>
         </div>
       </.modal>
@@ -95,47 +95,35 @@ defmodule MatchMakerWeb.ItemManagerComponent do
 
   def item_table(assigns) do
     ~H"""
-    <.table header_border="extra_small" rows_border="extra_small" cols_border="extra_small" table_fixed="true">
-      <:header>Name</:header>
+    <.table header_border="extra_small" rows_border="extra_small" cols_border="extra_small">
       <:header>Active</:header>
+      <:header>Name</:header>
       <:header>Actions</:header>
 
       <%= for item <- @items do %>
         <.tr>
-          <.td>
-            <%= if item.description do %>
-            <.tooltip text={item.description} position="right">
-            {item.name}
-            </.tooltip>
-            <% else %>
-            {item.name}
-            <% end %>
-          </.td>
-
-          <.td>
-            <%= if item.enabled do %>
-            <.button
+          <.td class="w-3">
+            <.input
+              name="item_enabled"
+              type="checkbox"
+              value={item.enabled}
               phx-click="toggle_item_enabled"
               phx-value-id={item.id}
               phx-target={@myself}
-              size="extra_small"
-              font_weight="font-light"
-              icon="hero-check"
             />
-            <% else %>
-            <.button
-              phx-click="toggle_item_enabled"
-              phx-value-id={item.id}
-              phx-target={@myself}
-              size="extra_small"
-              font_weight="font-light"
-              icon="hero-x-mark"
-            />
-            <% end %>
 
+            <.td>
+              <%= if item.description do %>
+                <.tooltip text={item.description} position="right">
+                  {item.name}
+                </.tooltip>
+              <% else %>
+                {item.name}
+              <% end %>
+            </.td>
           </.td>
-          <.td>
-            <.button_group color="secondary" class="outline-thin">
+          <.td class="w-5">
+            <.button_group class="outline-thin">
               <.button
                 phx-click="edit_item"
                 phx-value-id={item.id}
@@ -143,8 +131,7 @@ defmodule MatchMakerWeb.ItemManagerComponent do
                 icon="hero-pencil-square"
                 size="extra_small"
                 font_weight="font-light"
-              >
-              </.button>
+              />
               <.button
                 phx-click="delete_item"
                 phx-value-id={item.id}
@@ -152,8 +139,7 @@ defmodule MatchMakerWeb.ItemManagerComponent do
                 icon="hero-trash"
                 size="extra_small"
                 font_weight="font-light"
-              >
-              </.button>
+              />
             </.button_group>
           </.td>
         </.tr>
@@ -162,37 +148,35 @@ defmodule MatchMakerWeb.ItemManagerComponent do
           <.tr>
             <.td colspan="3">Item bearbeiten</.td>
           </.tr>
-          <.form_wrapper
-            :let={f}
-            for={@editing_changeset}
-            phx-submit="update_item"
-            phx-target={@myself}
-            class="mt-4"
-          >
-            <.tr>
-              <.td>
-                <.text_field label="Name" field={f[:name]} placeholder="Name" />
-              </.td>
-              <.td>
-                <.text_field label="Description" field={f[:description]} placeholder="Description" />
-              </.td>
-              <.td>
-                <.input type="hidden" field={f[:id]} />
-                <.button_group>
-                  <.button icon="hero-plus-circle" size="extra_small" font_weight="font-light">
-                  </.button>
-                  <.button
-                    phx-click="abort_form"
-                    phx-target={@myself}
-                    icon="hero-x-mark"
-                    size="extra_small"
-                    font_weight="font-light"
-                  >
-                  </.button>
-                </.button_group>
-              </.td>
-            </.tr>
-          </.form_wrapper>
+
+          <.tr>
+            <.td colspan="3">
+              <.form_wrapper
+                :let={f}
+                for={@editing_changeset}
+                phx-submit="update_item"
+                phx-target={@myself}
+                class="mt-4"
+              >
+                <div class="flex">
+                  <.text_field field={f[:name]} placeholder="Name" class="shrink" />
+                  <.text_field field={f[:description]} placeholder="Description" class="shrink" />
+
+                  <.input type="hidden" field={f[:id]} />
+                  <.button_group class="flex-none">
+                    <.button icon="hero-plus-circle" size="extra_small" font_weight="font-light" />
+                    <.button
+                      phx-click="abort_form"
+                      phx-target={@myself}
+                      icon="hero-x-mark"
+                      size="extra_small"
+                      font_weight="font-light"
+                    />
+                  </.button_group>
+                </div>
+              </.form_wrapper>
+            </.td>
+          </.tr>
         <% end %>
       <% end %>
     </.table>
@@ -206,15 +190,15 @@ defmodule MatchMakerWeb.ItemManagerComponent do
         class="mt-4"
       >
         <div class="grid grid-cols-2 gap-4">
-          <.text_field label="Name" field={f[:name]} placeholder="Name" />
-          <.text_field label="Description" field={f[:description]} placeholder="Description" />
+          <.text_field field={f[:name]} placeholder="Name" />
+          <.text_field field={f[:description]} placeholder="Description" />
         </div>
         <.input type="hidden" field={f[:side]} value={@side} />
         <.input type="hidden" field={f[:enabled]} value="true" />
         <.input type="hidden" field={f[:collection_id]} value={@collection_id} />
         <div class="mt-4">
-          <.button icon="hero-plus-circle"></.button>
-          <.button phx-click="abort_form" phx-target={@myself} icon="hero-x-mark"></.button>
+          <.button icon="hero-plus-circle" />
+          <.button phx-click="abort_form" phx-target={@myself} icon="hero-x-mark" />
         </div>
       </.form_wrapper>
     <% end %>
@@ -288,6 +272,7 @@ defmodule MatchMakerWeb.ItemManagerComponent do
     case Collections.update_item(item, %{"enabled" => !item.enabled}) do
       {:ok, _item} ->
         reload_collection(socket.assigns.collection.id, socket)
+
       {:error, changeset} ->
         {:noreply, assign(socket, :editing_changeset, changeset)}
     end
