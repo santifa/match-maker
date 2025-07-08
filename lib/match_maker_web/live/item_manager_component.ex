@@ -22,7 +22,7 @@ defmodule MatchMakerWeb.ItemManagerComponent do
         rounded="large"
         padding="large"
         size="quadruple_large"
-        class="max-w-3xl w-2xl"
+        class="max-w-4xl w-4xl"
         show={@show_item_modal}
         on_cancel={JS.push("close_item_modal")}
         title={"Items verwalten für: #{@collection.name}"}
@@ -95,15 +95,45 @@ defmodule MatchMakerWeb.ItemManagerComponent do
 
   def item_table(assigns) do
     ~H"""
-    <.table header_border="extra_small" rows_border="extra_small" cols_border="extra_small">
+    <.table header_border="extra_small" rows_border="extra_small" cols_border="extra_small" table_fixed="true">
       <:header>Name</:header>
-      <:header>Beschreibung</:header>
+      <:header>Active</:header>
       <:header>Actions</:header>
 
       <%= for item <- @items do %>
         <.tr>
-          <.td>{item.name}</.td>
-          <.td>{item.description}</.td>
+          <.td>
+            <%= if item.description do %>
+            <.tooltip text={item.description} position="right">
+            {item.name}
+            </.tooltip>
+            <% else %>
+            {item.name}
+            <% end %>
+          </.td>
+
+          <.td>
+            <%= if item.enabled do %>
+            <.button
+              phx-click="toggle_item_enabled"
+              phx-value-id={item.id}
+              phx-target={@myself}
+              size="extra_small"
+              font_weight="font-light"
+              icon="hero-check"
+            />
+            <% else %>
+            <.button
+              phx-click="toggle_item_enabled"
+              phx-value-id={item.id}
+              phx-target={@myself}
+              size="extra_small"
+              font_weight="font-light"
+              icon="hero-x-mark"
+            />
+            <% end %>
+
+          </.td>
           <.td>
             <.button_group color="secondary" class="outline-thin">
               <.button
@@ -180,6 +210,7 @@ defmodule MatchMakerWeb.ItemManagerComponent do
           <.text_field label="Description" field={f[:description]} placeholder="Description" />
         </div>
         <.input type="hidden" field={f[:side]} value={@side} />
+        <.input type="hidden" field={f[:enabled]} value="true" />
         <.input type="hidden" field={f[:collection_id]} value={@collection_id} />
         <div class="mt-4">
           <.button icon="hero-plus-circle"></.button>
@@ -249,6 +280,17 @@ defmodule MatchMakerWeb.ItemManagerComponent do
      |> assign(:left_items, collection.left_items)
      |> assign(:right_items, collection.right_items)
      |> assign(:editing_item, nil)}
+  end
+
+  def handle_event("toggle_item_enabled", %{"id" => id}, socket) do
+    item = Collections.get_item!(id)
+
+    case Collections.update_item(item, %{"enabled" => !item.enabled}) do
+      {:ok, _item} ->
+        reload_collection(socket.assigns.collection.id, socket)
+      {:error, changeset} ->
+        {:noreply, assign(socket, :editing_changeset, changeset)}
+    end
   end
 
   def handle_event("abort_form", _, socket) do
