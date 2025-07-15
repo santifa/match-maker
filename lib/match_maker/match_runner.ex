@@ -15,10 +15,7 @@ defmodule MatchMaker.MatchRunner do
         {:error, "Not enough tasks for a match"}
 
       {left_items, right_items} ->
-        assignments =
-          Enum.map(right_items, fn right ->
-            {right.id, Enum.random(left_items).id}
-          end)
+        assignments = assign_items(left_items, right_items)
 
         with :ok <- validate_all_pairs(collection, assignments) do
           match = Collections.create_match(collection, assignments)
@@ -26,6 +23,20 @@ defmodule MatchMaker.MatchRunner do
           match
         end
     end
+  end
+
+  defp assign_items(left_items, right_items) do
+    right_items = for i <- right_items, i.enabled, do: i
+    left_items = for i <- left_items, i.enabled, do: i
+
+    # multiple left hand sides are allowed but only if all are chosen at least once
+    left_items =
+      left_items
+      |> Enum.shuffle
+      |> Stream.cycle
+      |> Enum.take(length(right_items))
+
+    Enum.zip_with(right_items, left_items, fn r, l -> {r.id, l.id} end)
   end
 
   defp validate_all_pairs(collection, assignments) do
@@ -44,8 +55,6 @@ defmodule MatchMaker.MatchRunner do
   def maybe_send_webhook(%{webhook_url: ""}, _), do: :noop
 
   def maybe_send_webhook(%{webhook_url: url}, assignments) do
-    IO.inspect(assignments)
-
     body =
       %{
         content:
