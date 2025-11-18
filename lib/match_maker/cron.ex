@@ -34,7 +34,12 @@ defmodule MatchMaker.Cron do
     end
   end
 
+  @doc """
+  Runs a matching for a collection if the collection is enabled.
+  """
   def run_job(collection) do
-    MatchRunner.run(collection)
+    if collection.enabled do
+      MatchRunner.run(collection)
+    end
   end
 end

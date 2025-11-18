@@ -9,6 +9,7 @@ defmodule MatchMaker.Collections.Collection do
     field :webhook_template, :string, default: ""
     field :cron_expression, :string
     field :last_matched_at, :utc_datetime_usec
+    field :enabled, :boolean
 
     has_many :items, MatchMaker.Collections.Item, on_delete: :delete_all
 
@@ -28,9 +29,9 @@ defmodule MatchMaker.Collections.Collection do
   @doc false
   def changeset(collection, attrs) do
     collection
-    |> cast(attrs, [:name, :description, :webhook_url, :webhook_template, :cron_expression])
+    |> cast(attrs, [:name, :description, :webhook_url, :webhook_template, :cron_expression, :enabled])
     # |> put_change(:webhook_template, Map.get(attrs, "webhook_template") || "") # If default is not working
-    |> validate_required([:name, :webhook_url])
+    |> validate_required([:name, :webhook_url, :enabled])
     |> validate_format(:webhook_url, ~r/^https?:\/\/[^\s]+$/, message: "not a valid URL")
     |> validate_change(:cron_expression, fn :cron_expression, val ->
       case :ecron.parse_spec(val, 1) do

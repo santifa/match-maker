@@ -34,14 +34,13 @@ defmodule MatchMakerWeb.CollectionFormComponent do
           <.text_field field={f[:description]} label="Description" placeholder="Description" />
           <.text_field field={f[:cron_expression]} label="Cron" placeholder="0 9 * * 1" />
           <.url_field field={f[:webhook_url]} label="Webhook URL" placeholder="https://example.com" />
+          <.toggle_field field={f[:enabled]} checked={toggle_check(:enabled, f)} label="Active" />
           <.button class="mt-4" type="submit">Speichern</.button>
         </.form_wrapper>
       </.modal>
     </div>
     """
   end
-
-  # <.text_field field={f[:webhook_template]} label="Webhook Template" placeholder="{ ... }" />
 
   def handle_event("validate", %{"collection" => params}, socket) do
     changeset =
