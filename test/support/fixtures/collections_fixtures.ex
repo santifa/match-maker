@@ -4,6 +4,11 @@ defmodule MatchMaker.CollectionsFixtures do
   entities via the `MatchMaker.Collections` context.
   """
 
+  alias MatchMaker.Collections
+
+  def unique_collection_name, do: "Collection #{System.unique_integer()}"
+  def unique_item_name, do: "Item #{System.unique_integer()}"
+
   @doc """
   Generate a collection.
   """
@@ -11,12 +16,14 @@ defmodule MatchMaker.CollectionsFixtures do
     {:ok, collection} =
       attrs
       |> Enum.into(%{
+        name: unique_collection_name(),
         description: "some description",
-        name: "some name",
         webhook_template: "some webhook_template",
-        webhook_url: "some webhook_url"
+        webhook_url: "https://example.com/webhook",
+        cron_expression: "* * * * *",
+        enabled: true
       })
-      |> MatchMaker.Collections.create_collection()
+      |> Collections.create_collection()
 
     collection
   end
@@ -24,14 +31,17 @@ defmodule MatchMaker.CollectionsFixtures do
   @doc """
   Generate a item.
   """
-  def item_fixture(attrs \\ %{}) do
+  def item_fixture(collection, attrs \\ %{}) do
     {:ok, item} =
       attrs
       |> Enum.into(%{
-        description: "some description",
-        name: "some name"
+        name: unique_item_name(),
+        description: "A test item",
+        side: :left, # Enum default
+        enabled: true,
+        collection_id: collection.id # Link to parent
       })
-      |> MatchMaker.Collections.create_item()
+      |> Collections.create_item()
 
     item
   end

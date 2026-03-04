@@ -1,6 +1,5 @@
 defmodule MatchMaker.CollectionsTest do
   use MatchMaker.DataCase
-
   alias MatchMaker.Collections
 
   describe "collections" do
@@ -21,12 +20,12 @@ defmodule MatchMaker.CollectionsTest do
     end
 
     test "create_collection/1 with valid data creates a collection" do
-      valid_attrs = %{name: "some name", description: "some description", webhook_url: "some webhook_url", webhook_template: "some webhook_template"}
+      valid_attrs = %{name: "some name", description: "some description", webhook_url: "https://ex.com", webhook_template: "some webhook_template", enabled: true}
 
       assert {:ok, %Collection{} = collection} = Collections.create_collection(valid_attrs)
       assert collection.name == "some name"
       assert collection.description == "some description"
-      assert collection.webhook_url == "some webhook_url"
+      assert collection.webhook_url == "https://ex.com"
       assert collection.webhook_template == "some webhook_template"
     end
 
@@ -36,12 +35,12 @@ defmodule MatchMaker.CollectionsTest do
 
     test "update_collection/2 with valid data updates the collection" do
       collection = collection_fixture()
-      update_attrs = %{name: "some updated name", description: "some updated description", webhook_url: "some updated webhook_url", webhook_template: "some updated webhook_template"}
+      update_attrs = %{name: "some updated name", description: "some updated description", webhook_url: "https://ex.com", webhook_template: "some updated webhook_template"}
 
       assert {:ok, %Collection{} = collection} = Collections.update_collection(collection, update_attrs)
       assert collection.name == "some updated name"
       assert collection.description == "some updated description"
-      assert collection.webhook_url == "some updated webhook_url"
+      assert collection.webhook_url == "https://ex.com"
       assert collection.webhook_template == "some updated webhook_template"
     end
 
@@ -71,17 +70,18 @@ defmodule MatchMaker.CollectionsTest do
     @invalid_attrs %{name: nil, description: nil}
 
     test "list_items/0 returns all items" do
-      item = item_fixture()
+      item = item_fixture(collection_fixture())
       assert Collections.list_items() == [item]
     end
 
     test "get_item!/1 returns the item with given id" do
-      item = item_fixture()
+      item = item_fixture(collection_fixture())
       assert Collections.get_item!(item.id) == item
     end
 
     test "create_item/1 with valid data creates a item" do
-      valid_attrs = %{name: "some name", description: "some description"}
+      collection = collection_fixture()
+      valid_attrs = %{name: "some name", description: "some description", side: :left, enabled: true, collection_id: collection.id}
 
       assert {:ok, %Item{} = item} = Collections.create_item(valid_attrs)
       assert item.name == "some name"
@@ -93,7 +93,7 @@ defmodule MatchMaker.CollectionsTest do
     end
 
     test "update_item/2 with valid data updates the item" do
-      item = item_fixture()
+      item = item_fixture(collection_fixture())
       update_attrs = %{name: "some updated name", description: "some updated description"}
 
       assert {:ok, %Item{} = item} = Collections.update_item(item, update_attrs)
@@ -102,19 +102,19 @@ defmodule MatchMaker.CollectionsTest do
     end
 
     test "update_item/2 with invalid data returns error changeset" do
-      item = item_fixture()
+      item = item_fixture(collection_fixture())
       assert {:error, %Ecto.Changeset{}} = Collections.update_item(item, @invalid_attrs)
       assert item == Collections.get_item!(item.id)
     end
 
     test "delete_item/1 deletes the item" do
-      item = item_fixture()
+      item = item_fixture(collection_fixture())
       assert {:ok, %Item{}} = Collections.delete_item(item)
       assert_raise Ecto.NoResultsError, fn -> Collections.get_item!(item.id) end
     end
 
     test "change_item/1 returns a item changeset" do
-      item = item_fixture()
+      item = item_fixture(collection_fixture())
       assert %Ecto.Changeset{} = Collections.change_item(item)
     end
   end

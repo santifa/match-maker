@@ -6,36 +6,7 @@ defmodule MatchMaker.MatchRunnerTest do
   alias MatchMaker.Collections.MatchAssignment
 
   describe "match_runner" do
-    defp create_collection(attrs \\ %{}) do
-      {:ok, collection} =
-        attrs
-        |> Enum.into(%{
-          name: "Test collection",
-          description: "desc",
-          webhook_url: "https://example.com/webhook",
-          webhook_template: "",
-          cron_expression: "* * * * *",
-          enabled: true
-        })
-        |> Collections.create_collection()
-
-      collection
-    end
-
-    defp create_item(collection, side, attrs \\ %{}) do
-      {:ok, item} =
-        attrs
-        |> Enum.into(%{
-          name: "#{side} item",
-          description: "item",
-          side: side,
-          collection_id: collection.id,
-          enabled: true
-        })
-        |> Collections.create_item()
-
-      item
-    end
+    import MatchMaker.CollectionsFixtures
 
     defp collection_with_items(collection) do
       collection.id
@@ -44,8 +15,8 @@ defmodule MatchMaker.MatchRunnerTest do
     end
 
     test "do not run with empty collection" do
-      collection = create_collection()
-      _right = create_item(collection, :right)
+      collection = collection_fixture()
+      _right = item_fixture(collection, %{side: :right})
 
       collection = collection_with_items(collection)
 
@@ -53,8 +24,8 @@ defmodule MatchMaker.MatchRunnerTest do
     end
 
     test "do not run without tasks" do
-      collection = create_collection()
-      _left = create_item(collection, :left)
+      collection = collection_fixture()
+      _left = item_fixture(collection, %{side: :left})
 
       collection = collection_with_items(collection)
 
@@ -62,9 +33,9 @@ defmodule MatchMaker.MatchRunnerTest do
     end
 
     test "a 1:1 match works" do
-      collection = create_collection()
-      left = create_item(collection, :left)
-      right = create_item(collection, :right)
+      collection = collection_fixture()
+      left = item_fixture(collection, %{side: :left})
+      right = item_fixture(collection, %{side: :right})
 
       collection = collection_with_items(collection)
 
@@ -81,10 +52,10 @@ defmodule MatchMaker.MatchRunnerTest do
     end
 
     test "distributes assignments across available left items" do
-      collection = create_collection()
-      left_one = create_item(collection, :left, %{name: "Left 1"})
-      left_two = create_item(collection, :left, %{name: "Left 2"})
-      Enum.each(1..3, fn idx -> create_item(collection, :right, %{name: "Task #{idx}"}) end)
+      collection = collection_fixture()
+      left_one = item_fixture(collection, %{name: "Left 1", side: :left})
+      left_two = item_fixture(collection, %{name: "Left 2", side: :left})
+      Enum.each(1..3, fn idx -> item_fixture(collection, %{name: "Task #{idx}", side: :right}) end)
 
       collection = collection_with_items(collection)
 
@@ -102,11 +73,11 @@ defmodule MatchMaker.MatchRunnerTest do
     end
 
     test "ignores disabled participants and tasks" do
-      collection = create_collection()
-      active_left = create_item(collection, :left, %{name: "Active left"})
-      _inactive_left = create_item(collection, :left, %{name: "Inactive left", enabled: false})
-      active_right = create_item(collection, :right, %{name: "Active right"})
-      _inactive_right = create_item(collection, :right, %{name: "Inactive right", enabled: false})
+      collection = collection_fixture()
+      active_left = item_fixture(collection, %{name: "Active left", side: :left})
+      _inactive_left = item_fixture(collection, %{name: "Inactive left", enabled: false, side: :left})
+      active_right = item_fixture(collection,  %{name: "Active right", side: :right})
+      _inactive_right = item_fixture(collection, %{name: "Inactive right", enabled: false, side: :right})
 
       collection = collection_with_items(collection)
 
@@ -123,12 +94,12 @@ defmodule MatchMaker.MatchRunnerTest do
     end
 
     test "returns validation error when a pair spans collections" do
-      collection = create_collection(%{name: "Primary"})
-      _left = create_item(collection, :left)
-      _right = create_item(collection, :right)
+      collection = collection_fixture(%{name: "Primary"})
+      _left = item_fixture(collection, %{side: :left})
+      _right = item_fixture(collection, %{side: :right})
 
-      other_collection = create_collection(%{name: "Other"})
-      rogue_left = create_item(other_collection, :left)
+      other_collection = collection_fixture(%{name: "Other"})
+      rogue_left = item_fixture(other_collection, %{side: :left})
 
       collection =
         collection
