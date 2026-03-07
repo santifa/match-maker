@@ -110,6 +110,32 @@ defmodule MatchMaker.Collections do
     Collection.changeset(collection, attrs)
   end
 
+  def consume_cron_counter(%Collection{} = collection) do
+    interval = collection.cron_interval || 0
+    counter = collection.cron_counter || 0
+
+    cond do
+      interval <= 0 ->
+        {:run, collection}
+
+      counter + 1 < interval ->
+        with {:ok, updated} <- update_cron_counter(collection, counter + 1) do
+          {:skip, updated}
+        end
+
+      true ->
+        with {:ok, updated} <- update_cron_counter(collection, 0) do
+          {:run, updated}
+        end
+    end
+  end
+
+  defp update_cron_counter(%Collection{} = collection, value) do
+    collection
+    |> Ecto.Changeset.change(cron_counter: value)
+    |> Repo.update()
+  end
+
   alias MatchMaker.Collections.Item
 
   @doc """
