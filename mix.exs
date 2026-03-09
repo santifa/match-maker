@@ -59,7 +59,10 @@ defmodule MatchMaker.MixProject do
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
       {:mishka_chelekom, "~> 0.0.5", only: :dev},
-      {:ecron, "~> 1.1.0"}
+      {:ecron, "~> 1.1.0"},
+      # Authorization
+      {:ueberauth, "~> 0.10"},
+      {:ueberauth_google, "~> 0.12"},
     ]
   end
 

@@ -8,13 +8,26 @@ defmodule MatchMakerWeb.Router do
     plug :put_root_layout, html: {MatchMakerWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug :assign_current_user
+  end
+
+  # Make the current user accessible for all templates
+  defp assign_current_user(conn, _opts) do
+    assign(conn, :current_user, get_session(conn, :current_user))
   end
 
   pipeline :api do
     plug :accepts, ["json"]
   end
 
-  scope "/", MatchMakerWeb do
+
+  scope "/" , MatchMakerWeb do
+    pipe_through :browser
+
+    get "/", PageController, :index
+  end
+
+  scope "/dashboard", MatchMakerWeb do
     pipe_through :browser
 
     live "/", DashboardLive, :index
@@ -24,6 +37,16 @@ defmodule MatchMakerWeb.Router do
   # scope "/api", MatchMakerWeb do
   #   pipe_through :api
   # end
+  scope "/auth", MatchMakerWeb do
+    pipe_through :browser
+
+    get "/:provider", AuthController, :request
+    get "/:provider/callback", AuthController, :callback
+    post "/:provider/callback", AuthController, :callback
+    delete "/logout", AuthController, :delete
+  end
+
+
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:match_maker, :dev_routes) do

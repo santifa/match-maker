@@ -1,4 +1,4 @@
-<div class="ml-64 flex flex-col min-h-screen">
+<div class="flex flex-col min-h-dvh">
   <header class="bg-white border-b px-6 py-4 shadow flex items-center max-h-24">
     <.image
       src="/images/logo.png"
@@ -9,19 +9,41 @@
       class="max-h-20 mr-4"
     />
     <h1 class="text-2xl font-bold text-gray-800">MatchMaker</h1>
+    <span class="ml-auto">
+      <%= if @current_user do %>
+      <.dropdown id="user">
+        <:trigger>
+        <.button icon="hero-user">
+          {@current_user.name}
+        </.button>
+        </:trigger>
+        <:content>
+        <.button icon="hero-arrow-left-circle">
+          <.link title="Logout" href={~p"/auth/logout"} method="delete">Logout</.link>
+        </.button>
+        </:content>
+      </.dropdown>
+
+      <% else %>
+
+      <.button icon="hero-arrow-right-circle">
+        <.link title="Google" href={~p"/auth/google"}>Sign in with Google</.link>
+      </.button>
+      <% end %>
+    </span>
   </header>
 
-  <main>
+  <main style="flex: 1">
     <div class="mx-auto max-w-2xl">
       <.flash_group flash={@flash} />
     </div>
 
-    <div class="mx-auto max-w-4xl flex flex-col">
+    <!-- <div class="mx-auto max-w-4xl flex flex-col"> -->
       {@inner_content}
-    </div>
+    <!-- </div> -->
   </main>
 
-  <.footer variant="transparent" color="dark" text_position="center" padding="medium">
+  <.footer variant="transparent" color="dark" text_position="right" padding="medium">
     &copy; <%= Date.utc_today().year %> MatchMaker. All rights reserved.
   </.footer>
 </div>

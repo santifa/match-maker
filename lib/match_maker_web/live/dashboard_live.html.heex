@@ -1,14 +1,14 @@
-<div class="space-y-6 mt-6 flex flex-col gap outline-thin">
+<div class="flex flex-col outline-thin max-w-2xl items-center m-auto mt-5">
   <%= for collection <- @collections do %>
-    <.card variant="outline" color="dark" rounded="large" padding="medium">
+    <.card variant="outline" color="dark" rounded="large" padding="medium" class="m-3 p-3">
       <.card_title position="start">{collection.name}</.card_title>
       <.card_content space="medium" padding="none">
         <.divider type="dashed" />
+        <.p class="grow" font_weight="font-light">
+          {collection.description || "No Description"}
+        </.p>
 
         <.flex gap="small">
-          <.p class="grow" font_weight="font-light">
-            {collection.description || "No Description"}
-          </.p>
           <.badge rounded="extra_large" icon="hero-user">
             People: {Enum.count(collection.left_items)}
           </.badge>
