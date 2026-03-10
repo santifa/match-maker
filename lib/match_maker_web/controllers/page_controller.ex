@@ -8,7 +8,7 @@ defmodule MatchMakerWeb.PageController do
 
   def index(conn, _params) do
     case get_session(conn, :current_user) do
-      nil -> render(conn, "index.html", current_user: nil)
+      nil -> render(conn, :index, current_user: nil)
       _ -> redirect(conn, to: ~p"/dashboard")
     end
   end

@@ -11,14 +11,19 @@
     <h1 class="text-2xl font-bold text-gray-800">MatchMaker</h1>
     <span class="ml-auto">
       <%= if @current_user do %>
-      <.dropdown id="user">
+      <.dropdown id="user" space="extra_small" width="w-fit">
         <:trigger>
         <.button icon="hero-user">
           {@current_user.name}
         </.button>
         </:trigger>
         <:content>
-        <.button icon="hero-arrow-left-circle">
+          <%= if @current_user.role == "admin" do %>
+          <.button icon="hero-cog-6-tooth" class="w-full">
+            <.link title="Settings" href={~p"/dashboard/settings"}>Settings</.link>
+          </.button>
+          <% end %>
+          <.button icon="hero-arrow-left-circle" class="w-full">
           <.link title="Logout" href={~p"/auth/logout"} method="delete">Logout</.link>
         </.button>
         </:content>

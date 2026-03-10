@@ -1,0 +1,23 @@
+
+<.flex justify="start" class="m-8">
+  <section class="flex flex-col gap-4">
+    <.button icon="hero-cog-6-tooth" phx-click="switch" phx-value-section="general">
+      Settings
+    </.button>
+    <.button icon="hero-user" phx-click="switch" phx-value-section="user">
+      Users
+    </.button>
+  </section>
+
+  <section class="ml-8">
+    <%= case @section do %>
+    <% :general -> %>
+    <.live_component module={MatchMakerWeb.SettingsGeneralComponent} id="general" />
+    <% :user -> %>
+    <.live_component module={MatchMakerWeb.SettingsUserComponent} id="user" users={@users} />
+    <% end %>
+  </section>
+
+  <section>
+  </section>
+</.flex>

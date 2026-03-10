@@ -38,7 +38,7 @@ defmodule MatchMakerWeb.AuthController do
 
       {:error, reason} ->
         conn
-        |> put_flash(:error, reason)
+        |> put_flash(:error, "Failed to login: #{reason}")
         |> redirect(to: "/")
     end
   end

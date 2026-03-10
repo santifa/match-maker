@@ -30,7 +30,8 @@ defmodule MatchMaker.Accounts do
         {:ok, user}
       nil ->
         # Create a new user
-        with {:ok, mail} <- fetch_email(auth) do
+        with {:ok, mail} <- fetch_email(auth),
+             {:ok, mail} <- allowed_email(mail) do
           upsert_user(%{email: mail, name: fetch_name(auth), google_uid: google_uid})
         else
           {:error, reason} ->
@@ -42,6 +43,12 @@ defmodule MatchMaker.Accounts do
 
   def change_user(%User{} = user, attrs \\ %{}) do
     User.changeset(user, attrs)
+  end
+
+  def update_user_role(user, role) do
+    user
+    |> change_user(%{"role" => role})
+    |> Repo.update()
   end
 
   defp upsert_user(params) do
@@ -73,4 +80,13 @@ defmodule MatchMaker.Accounts do
   end
 
   defp fetch_name(_), do: nil
+
+  defp allowed_email(mail) do
+    allowed_emails = Application.fetch_env!(:match_maker, :allowed_domains)
+
+    case Enum.member?(allowed_emails, mail) do
+      true -> {:ok, mail}
+      false -> {:error, :invalid_domain}
+    end
+  end
 end
