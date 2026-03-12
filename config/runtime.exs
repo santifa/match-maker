@@ -22,7 +22,8 @@ end
 
 config :ueberauth, Ueberauth.Strategy.Google.OAuth,
        client_id: {System, :get_env, ["GOOGLE_CLIENT_ID"]},
-       client_secret: {System, :get_env, ["GOOGLE_CLIENT_SECRET"]}
+       client_secret: {System, :get_env, ["GOOGLE_CLIENT_SECRET"]},
+       redirect_uri: System.get_env("GOOGLE_REDIRECT_URI")
 
 config :match_maker, :allowed_domains,
        String.split(System.get_env("GOOGLE_ALLOWED_DOMAIN") || "", ",", trim: true)
