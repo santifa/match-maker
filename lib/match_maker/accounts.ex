@@ -35,7 +35,6 @@ defmodule MatchMaker.Accounts do
           upsert_user(%{email: mail, name: fetch_name(auth), google_uid: google_uid})
         else
           {:error, reason} ->
-            IO.puts("Failed to fetch email: #{inspect(reason)}")
             {:error, reason}
         end
     end
@@ -84,7 +83,8 @@ defmodule MatchMaker.Accounts do
   defp allowed_email(mail) do
     allowed_emails = Application.fetch_env!(:match_maker, :allowed_domains)
 
-    case Enum.member?(allowed_emails, mail) do
+    mail_domain = List.last(String.split(mail, "@"))
+    case Enum.member?(allowed_emails, mail_domain) do
       true -> {:ok, mail}
       false -> {:error, :invalid_domain}
     end

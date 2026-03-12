@@ -21,11 +21,16 @@ config :logger, level: :info
 # of environment variables, is done on config/runtime.exs.
 
 config :match_maker, MatchMakerWeb.Endpoint,
-       http: [port: {:system, "PORT"}], # Possibly not needed, but doesn't hurt
-       url: [host: "localhost"],
-       # url: [host: System.get_env("APP_NAME") <> ".gigalixirapp.com", port: 443],
-       secret_key_base: Map.fetch!(System.get_env(), "SECRET_KEY_BASE"),
-       server: true
+  http: [port: {:system, "PORT"}], # Possibly not needed, but doesn't hurt
+  url: [port: 443, scheme: "https"],
+  secret_key_base: Map.fetch!(System.get_env(), "SECRET_KEY_BASE"),
+  server: true,
+  force_ssl: [
+    rewrite_on: [:x_forwarded_proto],
+    # Optional, for HSTS:
+    hsts: true,
+    host: nil
+  ]
 
 config :match_maker, MatchMaker.Repo,
        adapter: Ecto.Adapters.Postgres,
