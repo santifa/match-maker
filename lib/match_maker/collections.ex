@@ -309,4 +309,32 @@ defmodule MatchMaker.Collections do
       end
     )
   end
+
+  @allowed_fields ~w(name description enabled webhook_url webhook_template cron_expression cron_interval)
+
+  def import_from_json(path) do
+    with {:ok, bin} <- File.read(path),
+         {:ok, list} when is_list(list) <- Jason.decode(bin) do
+      Repo.transaction(fn ->
+        Enum.map(list, fn attrs ->
+          IO.inspect attrs
+          IO.inspect @allowed_fields
+          attrs = attrs |> Map.take(@allowed_fields)
+          IO.inspect attrs
+          case create_collection(attrs) do
+            {:ok, col} -> col
+            {:error, changeset} -> Repo.rollback({:invalid, changeset})
+          end
+        end)
+      end)
+      |> case do
+        {:ok, inserted} -> {:ok, length(inserted)}
+        {:error, reason} -> {:error, reason}
+      end
+    else
+      {:error, _} = err -> err
+      _ -> {:error, :invalid_format}
+    end
+  end
+
 end

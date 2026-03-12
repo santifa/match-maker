@@ -1,4 +1,3 @@
-
 <.flex justify="start" class="m-8">
   <section class="flex flex-col gap-4">
     <.button icon="hero-cog-6-tooth" phx-click="switch" phx-value-section="general">
@@ -9,7 +8,7 @@
     </.button>
   </section>
 
-  <section class="ml-8">
+  <section class="flex flex-col ml-8">
     <%= case @section do %>
     <% :general -> %>
     <.live_component module={MatchMakerWeb.SettingsGeneralComponent} id="general" />

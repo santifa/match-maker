@@ -25,6 +25,7 @@ defmodule MatchMakerWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+    get "/collections/export/json", PageController, :export_json
   end
 
   scope "/dashboard", MatchMakerWeb do

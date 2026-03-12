@@ -89,4 +89,7 @@ defmodule MatchMaker.Accounts do
       false -> {:error, :invalid_domain}
     end
   end
+
+  def is_admin?(nil), do: false
+  def is_admin?(user), do: user.role == "admin"
 end

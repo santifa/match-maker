@@ -291,7 +291,7 @@ defmodule MatchMakerWeb.Components.Toast do
       type="button"
       class={["shrink-0 leading-5", @class]}
       aria-label={gettext("close")}
-      phx-click={JS.push("dismiss", value: Map.merge(%{id: @id}, @params)) |> hide_toast("##{@id}")}
+      phx-click={JS.push("lv:clear-flash", value: Map.merge(%{id: @id}, @params)) |> hide_toast("##{@id}")}
     >
       <.icon
         name="hero-x-mark-solid"

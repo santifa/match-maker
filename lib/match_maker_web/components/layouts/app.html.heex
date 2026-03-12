@@ -1,17 +1,21 @@
 <div class="flex flex-col min-h-dvh">
-  <header class="bg-white border-b px-6 py-4 shadow flex items-center max-h-24">
-    <.image
-      src="/images/logo.png"
-      loading="lazy"
-      decoding="async"
-      fetchpriority="high"
-      sizes="(max-width: 600px) 100vw, 50vw"
-      class="max-h-20 mr-4"
-    />
+  <header class="bg-white border-b px-6 shadow flex items-center">
+    <.link title="Dashboard" href={~p"/dashboard"}>
+      <.image
+        src="/images/logo.png"
+        loading="lazy"
+        decoding="async"
+        fetchpriority="high"
+        sizes="(max-width: 600px) 100vw, 50vw"
+        class="max-h-20 mr-auto"
+      />
+    </.link>
     <h1 class="text-2xl font-bold text-gray-800">MatchMaker</h1>
+
     <span class="ml-auto">
       <%= if @current_user do %>
-      <.dropdown id="user" space="extra_small" width="w-fit">
+
+      <.dropdown id={"user-menu-#{@current_user.id}"} space="extra_small" width="w-fit">
         <:trigger>
         <.button icon="hero-user">
           {@current_user.name}
@@ -39,15 +43,22 @@
   </header>
 
   <main style="flex: 1">
-    <div class="mx-auto max-w-2xl">
-      <.flash_group flash={@flash} />
-    </div>
-
-    <!-- <div class="mx-auto max-w-4xl flex flex-col"> -->
       {@inner_content}
-    <!-- </div> -->
   </main>
 
+  <.toast id="flash-toast" vertical="bottom" horizontal="left" variant="outline-thin" :for={{type, msg} <- @flash}>
+    <div class="flex items-center gap-2 text-xs">
+      <%= if type == :error do %>
+      <span class="text-red-700">
+        {msg}
+      </span>
+      <% else %>
+      <span>
+        {msg}
+      </span>
+      <% end %>
+    </div>
+  </.toast>
   <.footer variant="transparent" color="dark" text_position="right" padding="medium">
     &copy; <%= Date.utc_today().year %> MatchMaker. All rights reserved.
   </.footer>

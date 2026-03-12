@@ -11,7 +11,7 @@ defmodule MatchMakerWeb.SettingsUserComponent do
 
   def render(assigns) do
     ~H"""
-    <div class="w-2xl">
+    <div>
       <.h2>User Settings</.h2>
       <.p class="mb-4">See the sidebar for more settings</.p>
 
@@ -41,6 +41,7 @@ defmodule MatchMakerWeb.SettingsUserComponent do
         </.tr>
         <% end %>
       </.table>
+
     </div>
     """
   end

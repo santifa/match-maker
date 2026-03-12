@@ -53,4 +53,14 @@ defmodule MatchMaker.Collections.Collection do
       end
     end)
   end
+
+  defimpl Jason.Encoder, for: [__MODULE__] do
+    def encode(struct, opts) do
+      Enum.reduce(Map.from_struct(struct), %{}, fn
+        ({_k, %Ecto.Association.NotLoaded{}}, acc) -> acc
+        ({k, v}, acc) -> Map.reject(acc, fn {k, _v} -> k === :__meta__ end) |> Map.put(k, v)
+      end)
+      |> Jason.Encode.map(opts)
+    end
+  end
 end

@@ -62,7 +62,7 @@ defmodule MatchMaker.MixProject do
       {:ecron, "~> 1.1.0"},
       # Authorization
       {:ueberauth, "~> 0.10"},
-      {:ueberauth_google, "~> 0.12"},
+      {:ueberauth_google, "~> 0.12"}
     ]
   end
 

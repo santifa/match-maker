@@ -6,7 +6,7 @@ defmodule MatchMakerWeb.SettingsLive do
   def mount(_params, session, socket) do
     user = Map.get(session, "current_user")
 
-    case is_admin?(user) do
+    case Accounts.is_admin?(user) do
       false -> redirect(socket, to: ~p"/dashboard")
       true ->
         users = Accounts.list_users()
@@ -18,9 +18,6 @@ defmodule MatchMakerWeb.SettingsLive do
         }
     end
   end
-
-  defp is_admin?(nil), do: false
-  defp is_admin?(user), do: user.role == "admin"
 
   @impl true
   def handle_event("switch", %{"section" => section}, socket) do
@@ -45,5 +42,10 @@ defmodule MatchMakerWeb.SettingsLive do
     else
       {:noreply, socket}
     end
+  end
+
+  @impl true
+  def handle_info({flash, level, msg}, socket) do
+    {:noreply, put_flash(socket, level, msg)}
   end
 end
