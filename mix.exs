@@ -4,7 +4,7 @@ defmodule MatchMaker.MixProject do
   def project do
     [
       app: :match_maker,
-      version: "0.1.0",
+      version: "0.2.0",
       elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
@@ -62,7 +62,8 @@ defmodule MatchMaker.MixProject do
       {:ecron, "~> 1.1.0"},
       # Authorization
       {:ueberauth, "~> 0.10"},
-      {:ueberauth_google, "~> 0.12"}
+      {:ueberauth_google, "~> 0.12"},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
     ]
   end
 
