@@ -9,7 +9,7 @@ defmodule MatchMakerWeb.ItemLiveTest do
   @invalid_attrs %{name: nil, description: nil}
 
   defp create_item(_) do
-    item = item_fixture()
+    item = Collecton.item_fixture()
     %{item: item}
   end
 

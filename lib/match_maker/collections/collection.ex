@@ -11,7 +11,7 @@ defmodule MatchMaker.Collections.Collection do
     field :cron_interval, :integer, default: 0
     field :cron_counter, :integer, default: 0
     field :last_matched_at, :utc_datetime_usec
-    field :enabled, :boolean
+    field :enabled, :boolean, default: true
 
     has_many :items, MatchMaker.Collections.Item, on_delete: :delete_all
 
@@ -41,15 +41,33 @@ defmodule MatchMaker.Collections.Collection do
       :cron_interval,
       :cron_counter
     ])
-    # |> put_change(:webhook_template, Map.get(attrs, "webhook_template") || "") # If default is not working
-    |> validate_required([:name, :webhook_url, :enabled])
-    |> validate_format(:webhook_url, ~r/^https?:\/\/[^\s]+$/, message: "not a valid URL")
-    |> validate_number(:cron_interval, greater_than_or_equal_to: 0)
+    |> validate_required([:name, :enabled])
+    |> validate_length(:name, max: 255)
+    |> validate_length(:webhook_template, max: 4_000)
+    |> validate_webhook_url()
+    |> validate_cron_expression()
+    |> validate_number(:cron_interval, greater_than_or_equal_to: 0, less_than_or_equal_to: 1_000)
     |> validate_number(:cron_counter, greater_than_or_equal_to: 0)
-    |> validate_change(:cron_expression, fn :cron_expression, val ->
-      case :ecron.parse_spec(val, 1) do
-        {:ok, _} -> []
-        {:error, _, _} -> [cron_expression: "is not a valid cron expression"]
+    |> unique_constraint(:name)
+  end
+
+  defp validate_webhook_url(changeset) do
+    validate_change(changeset, :webhook_url, fn :webhook_url, url ->
+      cond do
+        is_nil(url) or url == "" -> []
+        String.length(url) > 2_048 -> [webhook_url: "is too long"]
+        String.match?(url, ~r/^https?:\/\/[^\s]+$/) -> []
+        true -> [webhook_url: "not a valid URL"]
+      end
+    end)
+  end
+
+  defp validate_cron_expression(changeset) do
+    validate_change(changeset, :cron_expression, fn :cron_expression, expression ->
+      cond do
+        is_nil(expression) or expression == "" -> []
+        match?({:ok, _}, :ecron.parse_spec(expression, 1)) -> []
+        true -> [cron_expression: "is not a valid cron expression"]
       end
     end)
   end

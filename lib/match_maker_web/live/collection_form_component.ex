@@ -35,7 +35,7 @@ defmodule MatchMakerWeb.CollectionFormComponent do
           <.text_field field={f[:cron_expression]} label="Cron" placeholder="0 9 * * 1" />
           <.number_field
             field={f[:cron_interval]}
-            label="Run every Nth cron (0 = every time)"
+            label="Run every Nth cron (0 = ignore interval)"
             min="0"
             placeholder="0"
           />

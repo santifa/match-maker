@@ -83,7 +83,7 @@ defmodule MatchMaker.Accounts do
   defp allowed_email(mail) do
     allowed_emails = Application.fetch_env!(:match_maker, :allowed_domains)
 
-    mail_domain = List.last(String.split(mail, "@"))
+    mail_domain = mail |> String.split("@") |> List.last
     case Enum.member?(allowed_emails, mail_domain) do
       true -> {:ok, mail}
       false -> {:error, :invalid_domain}

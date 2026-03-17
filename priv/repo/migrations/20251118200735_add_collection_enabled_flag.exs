@@ -3,7 +3,7 @@ defmodule MatchMaker.Repo.Migrations.AddCollectionEnabledFlag do
 
   def change do
     alter table(:collections) do
-      add :enabled, :boolean, default: true
+      add :enabled, :boolean, default: true, null: false
     end
   end
 end
