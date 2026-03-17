@@ -108,5 +108,16 @@ defmodule MatchMaker.MatchRunnerTest do
 
       assert {:error, :mismatched_collections} = MatchRunner.run(collection)
     end
+
+    test "skips webhook when url is blank" do
+      collection = collection_fixture(%{webhook_url: ""})
+      _left = item_fixture(collection, %{side: :left})
+      _right = item_fixture(collection, %{side: :right})
+
+      collection = Collections.get_collection_with_items!(collection.id)
+
+      # Should not attempt an HTTP request and still succeed
+      assert {:ok, _match} = MatchRunner.run(collection)
+    end
   end
 end

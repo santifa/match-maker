@@ -234,7 +234,6 @@ defmodule MatchMakerWeb.ItemManagerComponent do
         reload_collection(socket.assigns.collection.id, socket)
 
       {:error, changeset} ->
-        IO.inspect(changeset)
         {:noreply, assign(socket, :new_changeset, changeset)}
     end
   end

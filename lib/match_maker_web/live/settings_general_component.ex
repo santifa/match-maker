@@ -1,5 +1,5 @@
 defmodule MatchMakerWeb.SettingsGeneralComponent do
-	use MatchMakerWeb, :live_component
+  use MatchMakerWeb, :live_component
 
   alias MatchMaker.Collections
 

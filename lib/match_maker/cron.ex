@@ -40,22 +40,21 @@ defmodule MatchMaker.Cron do
   def run_job(%Collection{id: id} = _collection) do
     collection = Collections.get_collection!(id)
 
-    cond do
-      collection.enabled == false ->
-        :collection_disabled
+    if collection.enabled do
+      case Collections.consume_cron_counter(collection) do
+        {:skip, _} ->
+          {:skip, []}
 
-      true ->
-        case Collections.consume_cron_counter(collection) do
-          {:skip, _} ->
-            :skipped
+        {:run, _} ->
+          collection_with_items = Collections.get_collection_with_items!(id)
+          MatchRunner.run(collection_with_items)
 
-          {:run, _updated} ->
-            collection_with_items = Collections.get_collection_with_items!(id)
-            MatchRunner.run(collection_with_items)
-
-          {:error, _} = error ->
-            error
-        end
+        {:error, _} = error ->
+          error
+      end
+    else
+      {:disabled, []}
     end
+
   end
 end

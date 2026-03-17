@@ -315,18 +315,7 @@ defmodule MatchMaker.Collections do
   def import_from_json(path) do
     with {:ok, bin} <- File.read(path),
          {:ok, list} when is_list(list) <- Jason.decode(bin) do
-      Repo.transaction(fn ->
-        Enum.map(list, fn attrs ->
-          IO.inspect attrs
-          IO.inspect @allowed_fields
-          attrs = attrs |> Map.take(@allowed_fields)
-          IO.inspect attrs
-          case create_collection(attrs) do
-            {:ok, col} -> col
-            {:error, changeset} -> Repo.rollback({:invalid, changeset})
-          end
-        end)
-      end)
+      create_collections(list)
       |> case do
         {:ok, inserted} -> {:ok, length(inserted)}
         {:error, reason} -> {:error, reason}
@@ -337,4 +326,15 @@ defmodule MatchMaker.Collections do
     end
   end
 
+  defp create_collections(collections) do
+    Repo.transaction(fn ->
+      Enum.map(collections, fn attrs ->
+        attrs = attrs |> Map.take(@allowed_fields)
+        case create_collection(attrs) do
+          {:ok, col} -> col
+          {:error, changeset} -> Repo.rollback({:invalid, changeset})
+        end
+      end)
+    end)
+  end
 end

@@ -4,8 +4,8 @@ defmodule MatchMaker.MatchRunner do
   require Logger
 
   def run(collection) do
-    left_items = collection.left_items
-    right_items = Enum.shuffle(collection.right_items)
+    left_items = collection.left_items |> Enum.filter(fn i -> i.enabled end)
+    right_items = collection.right_items |> Enum.filter(fn i -> i.enabled end)
 
     case {left_items, right_items} do
       {[], _} ->
@@ -15,6 +15,7 @@ defmodule MatchMaker.MatchRunner do
         {:error, "Not enough tasks for a match"}
 
       {left_items, right_items} ->
+        right_items = Enum.shuffle(right_items)
         assignments = assign_items(left_items, right_items)
 
         with :ok <- validate_all_pairs(collection, assignments) do

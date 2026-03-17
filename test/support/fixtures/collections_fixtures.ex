@@ -5,6 +5,7 @@ defmodule MatchMaker.CollectionsFixtures do
   """
 
   alias MatchMaker.Collections
+  alias MatchMaker.Collections.Collection
 
   def unique_collection_name, do: "Collection #{System.unique_integer()}"
   def unique_item_name, do: "Item #{System.unique_integer()}"
@@ -45,4 +46,17 @@ defmodule MatchMaker.CollectionsFixtures do
 
     item
   end
+
+
+  def collection_changeset_fixture(webhook_url \\ "https://example.com/webhook") do
+    %Collection{
+      name: unique_collection_name(),
+      description: "some description",
+      webhook_template: "some webhook_template",
+      webhook_url: webhook_url,
+      cron_expression: "* * * * *",
+      enabled: true
+    }
+  end
+
 end

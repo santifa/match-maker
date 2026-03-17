@@ -15,9 +15,11 @@
           <.badge rounded="extra_large" icon="hero-queue-list">
             Tasks: {Enum.count(collection.right_items)}
           </.badge>
+          <%= if collection.webhook_url do %>
           <.badge rounded="extra_large" class="max-w-50 truncate">
             Webhook: {String.slice(collection.webhook_url, 0, 30)}
           </.badge>
+          <% end %>
           <%= if collection.cron_expression do %>
           <.badge rounded="extra_large" icon="hero-clock">
             Schedule: {collection.cron_expression}
