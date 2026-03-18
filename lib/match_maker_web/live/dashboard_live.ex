@@ -5,24 +5,17 @@ defmodule MatchMakerWeb.DashboardLive do
   alias MatchMaker.Collections
 
   @impl true
-  def mount(_params, session, socket) do
-    user = Map.get(session, "current_user")
+  def mount(_params, _session, socket) do
+    collections = Collections.list_collections_with_stats()
 
-    if is_nil(user) do
-      {:ok, redirect(socket, to: ~p"/")}
-    else
-      collections = Collections.list_collections_with_stats()
-
-      {:ok,
-       socket
-       |> assign(:collections, collections)
-       |> assign(:show_modal, false)
-       |> assign(:show_item_modal, false)
-       |> assign(:show_matches_modal, false)
-       |> assign(:form_action, :new)
-       |> assign(:current_user, user)
-       |> assign(:collection, %Collections.Collection{})}
-    end
+    {:ok,
+     socket
+     |> assign(:collections, collections)
+     |> assign(:show_modal, false)
+     |> assign(:show_item_modal, false)
+     |> assign(:show_matches_modal, false)
+     |> assign(:form_action, :new)
+     |> assign(:collection, %Collections.Collection{})}
   end
 
   def handle_event("run_match", %{"id" => id}, socket) do

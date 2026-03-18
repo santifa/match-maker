@@ -92,4 +92,12 @@ defmodule MatchMaker.Accounts do
 
   def is_admin?(nil), do: false
   def is_admin?(user), do: user.role == "admin"
+
+  def is_user?(nil), do: false
+  def is_user?(user) do
+    case Repo.get(User, user.id) do
+      %User{} = _ -> true
+      _ -> false
+    end
+  end
 end

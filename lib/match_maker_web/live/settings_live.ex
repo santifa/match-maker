@@ -2,21 +2,15 @@ defmodule MatchMakerWeb.SettingsLive do
   use MatchMakerWeb, :live_view
   alias MatchMaker.Accounts
 
+  on_mount {MatchMakerWeb.AuthController, :admin}
+
   @impl true
-  def mount(_params, session, socket) do
-    user = Map.get(session, "current_user")
+  def mount(_params, _session, socket) do
+    users = Accounts.list_users()
 
-    case Accounts.is_admin?(user) do
-      false -> redirect(socket, to: ~p"/dashboard")
-      true ->
-        users = Accounts.list_users()
-
-        {:ok, socket
-        |> assign(:current_user, user)
-        |> assign(:section, :general)
-        |> assign(users: users)
-        }
-    end
+    {:ok, socket
+    |> assign(:section, :general)
+    |> assign(users: users)}
   end
 
   @impl true

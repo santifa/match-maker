@@ -4,22 +4,16 @@ defmodule MatchMakerWeb.Router do
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
+    # plug :assign_current_user
     plug :fetch_live_flash
     plug :put_root_layout, html: {MatchMakerWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
-    plug :assign_current_user
-  end
-
-  # Make the current user accessible for all templates
-  defp assign_current_user(conn, _opts) do
-    assign(conn, :current_user, get_session(conn, :current_user))
   end
 
   pipeline :api do
     plug :accepts, ["json"]
   end
-
 
   scope "/" , MatchMakerWeb do
     pipe_through :browser
@@ -28,17 +22,15 @@ defmodule MatchMakerWeb.Router do
     get "/collections/export/json", PageController, :export_json
   end
 
-  scope "/dashboard", MatchMakerWeb do
-    pipe_through :browser
+  live_session :dashboard, on_mount: {MatchMakerWeb.AuthController, :user} do
+    scope "/dashboard", MatchMakerWeb do
+      pipe_through [:browser]
 
-    live "/", DashboardLive, :index
-    live "/settings", SettingsLive, :index
+      live "/", DashboardLive, :index
+      live "/settings", SettingsLive, :index
+    end
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", MatchMakerWeb do
-  #   pipe_through :api
-  # end
   scope "/auth", MatchMakerWeb do
     pipe_through :browser
 
@@ -47,6 +39,11 @@ defmodule MatchMakerWeb.Router do
     post "/:provider/callback", AuthController, :callback
     delete "/logout", AuthController, :delete
   end
+
+  # Other scopes may use custom stacks.
+  # scope "/api", MatchMakerWeb do
+  #   pipe_through :api
+  # end
 
 
 
