@@ -16,20 +16,28 @@ defmodule MatchMakerWeb.SettingsGeneralComponent do
 
   def render(assigns) do
     ~H"""
-    <div class="flex flex-col gap-2">
+    <div class="flex flex-col gap-2 text-black min-w-full">
       <.h2>General Settings</.h2>
-      <.p class="mb-2">See the sidebar for more settings</.p>
 
-      <.h3>Export</.h3>
-      <.button>
-        <.link title="Export" href={~p"/collections/export/json"}>Collections</.link>
-      </.button>
+      <.tabs id="import-export" size="large" rounded="medium" gap="large">
+        <:tab>Export</:tab>
+        <:tab>Import</:tab>
 
-      <.h3>Import</.h3>
-      <form id="upload-form" phx-change="validate" phx-submit="import-collections" phx-target={@myself}>
-        <.file_field name="file-upload" uploads={@uploads.import_file}/>
-        <.button class="mt-2" type="submit">Upload Collections</.button>
-      </form>
+        <:panel>
+          <.button>
+            <.link title="Export" href={~p"/collections/export/json"}>Collections</.link>
+          </.button>
+        </:panel>
+
+        <:panel>
+          <.form_wrapper id="upload-form" for={@uploads}
+            phx-change="validate" phx-submit="import-collections" phx-target={@myself}>
+            <.file_field name="file-upload" size="extra_small" class="text-sm"
+              uploads={@uploads.import_file}/>
+            <.button class="mt-2" type="submit">Upload Collections</.button>
+          </.form_wrapper>
+      </:panel>
+      </.tabs>
     </div>
     """
   end

@@ -11,11 +11,11 @@ defmodule MatchMakerWeb.SettingsUserComponent do
 
   def render(assigns) do
     ~H"""
-    <div>
+    <div class="text-black">
       <.h2>User Settings</.h2>
       <.p class="mb-4">See the sidebar for more settings</.p>
 
-      <.table>
+      <.table class="">
         <:header>Name</:header>
         <:header>Email</:header>
         <:header>Role</:header>
