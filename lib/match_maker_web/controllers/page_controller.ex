@@ -17,6 +17,7 @@ defmodule MatchMakerWeb.PageController do
 
   def export_json(conn, _params) do
     user = get_session(conn, :current_user)
+
     case Accounts.is_admin?(user) do
       false -> render(conn, :index, current_user: nil)
       true ->
