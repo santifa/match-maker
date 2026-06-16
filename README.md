@@ -1,47 +1,89 @@
 # MatchMaker
 
-MatchMaker is a lightweight web application designed to match items grouped within
-collections. It provides an intuitive user interface to:
+MatchMaker is a lightweight Phoenix/LiveView application for assigning items in
+collections. In the UI, left-side items are **People** and right-side items are
+**Tasks**.
 
-* Manage collections and their items
-* Run matchings manually or on a schedule using cron expressions
-* Automatically deliver match results to a webhook endpoint for further processing or
-  integration (test webhooks with webhook.site)
+It supports:
 
-Whether triggered manually or via cron, each matching assigns items from one side of the
-collection to the other in a randomized but complete way. Unmatched items are handled
-gracefully, and full match history is preserved.
+* Managing collections and their people/tasks
+* Enabling/disabling collections and individual items
+* Running matchings manually or on cron schedules
+* Sending optional webhook notifications with match results
+* Preserving match history
+* Admin-only JSON import/export of collections
 
 ## Setup
 
-To start the phoenix server locally:
+To start the Phoenix server locally:
 
-  * Clone the repository
-  * Run `mix setup` to install and setup dependencies
-  * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+* Clone the repository
+* Run `mix setup` to install dependencies, create/migrate the SQLite DB, and build assets
+* Start Phoenix with `mix phx.server` or `iex -S mix phx.server`
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+Visit [`localhost:4000`](http://localhost:4000) in your browser.
 
-*Everything is prepared for deployment on [gigalixir](https://gigalixir.com/).*
+## Authentication
+
+The dashboard uses Google OAuth via Ueberauth. Configure:
+
+* `GOOGLE_CLIENT_ID`
+* `GOOGLE_CLIENT_SECRET`
+* `GOOGLE_REDIRECT_URI`
+* `GOOGLE_ALLOWED_DOMAIN` - comma-separated allowed email domains
+
+The first user to sign in becomes an admin. Admins can manage users and import/export
+collections under `/dashboard/settings`.
+
+## Development
+
+Useful commands:
+
+* `mix test` - run tests
+* `mix format` - format Elixir/HEEx
+* `mix credo` - run lint checks
+* `mix compile --warnings-as-errors` - compile-check larger changes
+* `mix assets.build` - build frontend assets
+
+## Deployment
+
+Production expects these environment variables:
+
+* `SECRET_KEY_BASE`
+* `DATABASE_URL` - SQLite database URL/path
+* `PHX_HOST`
+* `PORT`
+* Google OAuth variables listed above
+
+Optional: `POOL_SIZE`, `DNS_CLUSTER_QUERY`.
 
 ## Technical
 
-The picture shows the visual representation of the data model.
+Data model overview:
 
-```
+```text
 [collections]
     ├── has_many → [items]
-    │                ├─ side: :left  → [left_items]
-    │                └─ side: :right → [right_items]
+    │                ├─ side: :left  → [people]
+    │                └─ side: :right → [tasks]
     └── has_many → [matches]
                       └── has_many → [match_assignments]
                                           ├── belongs_to → [left_item]
                                           └── belongs_to → [right_item]
 ```
 
-### Open points
+## Matching algorithm
 
-* [ ] Show old matchings
-* [ ] Make webhook optional
-* [ ] Other matching algorithms
-* [ ] Support templating for webhooks
+The current algorithm assigns each enabled task to one enabled person. Tasks are
+shuffled; enabled people are shuffled and cycled as needed. If there are fewer people
+than tasks, people may be assigned more than once. If there are more people than tasks,
+some people may be unassigned in that run.
+
+Cron jobs only run for enabled collections. `cron_interval` can skip scheduled runs;
+`0` means every cron trigger runs.
+
+## Open points
+
+* [ ] Finish exposing historical matchings in the dashboard UI
+* [ ] Implement and expose webhook template rendering
+* [ ] Add other matching algorithms
