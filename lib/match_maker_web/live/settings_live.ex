@@ -53,13 +53,13 @@ alias MatchMaker.Collections
               <.td>{user.email}</.td>
               <.td>
                 <%= if user.role == "admin" do %>
-                <.native_select name="role" space="small" size="small"
+                <.native_select id="role-admin" name="role" space="small" size="small"
                   phx-click="change_role" phx-value-user_id={user.id}>
                   <:option value="user">User</:option>
                   <:option value="admin" selected>Admin</:option>
                 </.native_select>
                 <% else %>
-                <.native_select name="role" space="small" size="small"
+                <.native_select id="role-user" name="role" space="small" size="small"
                   phx-click="change_role" phx-value-user_id={user.id}>
                   <:option value="user" selected>User</:option>
                   <:option value="admin">Admin</:option>

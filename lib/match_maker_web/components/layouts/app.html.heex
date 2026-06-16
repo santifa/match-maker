@@ -15,7 +15,7 @@
     <span class="ml-auto">
       <%= if @current_user do %>
 
-      <.dropdown id={"user-menu-#{@current_user.id}"} space="extra_small" width="w-fit">
+      <.dropdown id={"user-menu-#{@current_user.id}"} space="extra_small">
         <:trigger>
         <.button icon="hero-user">
           {@current_user.name}

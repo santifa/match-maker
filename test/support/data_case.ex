@@ -13,6 +13,7 @@ defmodule MatchMaker.DataCase do
   by setting `use MatchMaker.DataCase, async: true`, although
   this option is not recommended for other databases.
   """
+alias MatchMaker.Collections.Match
 
   use ExUnit.CaseTemplate
 
@@ -24,6 +25,8 @@ defmodule MatchMaker.DataCase do
       import Ecto.Changeset
       import Ecto.Query
       import MatchMaker.DataCase
+      import MatchMaker.AccountsFixtures
+      import MatchMaker.CollectionsFixtures
     end
   end
 

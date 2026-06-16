@@ -16,14 +16,14 @@
             Tasks: {Enum.count(collection.right_items)}
           </.badge>
           <%= if collection.webhook_url do %>
-          <.badge rounded="extra_large" class="max-w-50 truncate">
-            Webhook: {String.slice(collection.webhook_url, 0, 30)}
-          </.badge>
+            <.badge rounded="extra_large" class="max-w-50 truncate">
+              Webhook: {String.slice(collection.webhook_url, 0, 30)}
+            </.badge>
           <% end %>
           <%= if collection.cron_expression do %>
-          <.badge rounded="extra_large" icon="hero-clock">
-            Schedule: {collection.cron_expression}
-          </.badge>
+            <.badge rounded="extra_large" icon="hero-clock">
+              Schedule: {collection.cron_expression}
+            </.badge>
           <% end %>
           <.tooltip text="How many runs are skipped. 0 means run every time." size="extra_small">
             <.badge rounded="extra_large" icon="hero-clock">
@@ -61,9 +61,9 @@
           >
             Run matching
           </.button>
-          <!-- <.button phx-click="show_matches" phx-value-id={collection.id}"> -->
-          <!--   Show matches -->
-          <!-- </.button> -->
+          <.button phx-click="show_matches" phx-value-id={collection.id}>
+            Show history
+          </.button>
           <.button phx-click="edit_collection" phx-value-id={collection.id} class="ml-6">
             Edit collection
           </.button>
