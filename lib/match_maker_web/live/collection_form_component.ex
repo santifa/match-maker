@@ -33,6 +33,24 @@ defmodule MatchMakerWeb.CollectionFormComponent do
           <.text_field field={f[:name]} label="Name" placeholder="Collection Name" required />
           <.text_field field={f[:description]} label="Description" placeholder="Description" />
           <.text_field field={f[:cron_expression]} label="Cron" placeholder="0 9 * * 1" />
+          <.native_select
+            field={f[:matching_algorithm]}
+            label="Matching algorithm"
+            description="Choose how people and tasks are paired."
+          >
+            <:option
+              value="randomized_round_robin"
+              selected={f[:matching_algorithm].value == :randomized_round_robin}
+            >
+              Randomized round-robin
+            </:option>
+            <:option
+              value="greedy_history_aware"
+              selected={f[:matching_algorithm].value == :greedy_history_aware}
+            >
+              Greedy history-aware
+            </:option>
+          </.native_select>
           <.number_field
             field={f[:cron_interval]}
             label="Run every Nth cron (0 = ignore interval)"

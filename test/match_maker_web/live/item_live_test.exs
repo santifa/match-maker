@@ -2,112 +2,44 @@ defmodule MatchMakerWeb.ItemLiveTest do
   use MatchMakerWeb.ConnCase
 
   import Phoenix.LiveViewTest
+  import MatchMaker.AccountsFixtures
   import MatchMaker.CollectionsFixtures
 
-  @create_attrs %{name: "some name", description: "some description"}
-  @update_attrs %{name: "some updated name", description: "some updated description"}
-  @invalid_attrs %{name: nil, description: nil}
-
-  defp create_item(_) do
-    item = Collecton.item_fixture()
-    %{item: item}
+  setup do
+    Application.put_env(:match_maker, :allowed_domains, ["example.com"])
+    :ok
   end
 
-  describe "Index" do
-    setup [:create_item]
+  test "dashboard opens the item editor for a collection", %{conn: conn} do
+    admin = admin_fixture()
+    collection = collection_fixture()
+    item = item_fixture(collection)
 
-    test "lists all items", %{conn: conn, item: item} do
-      {:ok, _index_live, html} = live(conn, ~p"/items")
+    conn = init_test_session(conn, %{"current_user" => admin})
+    {:ok, view, _html} = live(conn, ~p"/dashboard")
 
-      assert html =~ "Listing Items"
-      assert html =~ item.name
-    end
+    view
+    |> element("button", "Edit items")
+    |> render_click()
 
-    test "saves new item", %{conn: conn} do
-      {:ok, index_live, _html} = live(conn, ~p"/items")
-
-      assert index_live |> element("a", "New Item") |> render_click() =~
-               "New Item"
-
-      assert_patch(index_live, ~p"/items/new")
-
-      assert index_live
-             |> form("#item-form", item: @invalid_attrs)
-             |> render_change() =~ "can&#39;t be blank"
-
-      assert index_live
-             |> form("#item-form", item: @create_attrs)
-             |> render_submit()
-
-      assert_patch(index_live, ~p"/items")
-
-      html = render(index_live)
-      assert html =~ "Item created successfully"
-      assert html =~ "some name"
-    end
-
-    test "updates item in listing", %{conn: conn, item: item} do
-      {:ok, index_live, _html} = live(conn, ~p"/items")
-
-      assert index_live |> element("#items-#{item.id} a", "Edit") |> render_click() =~
-               "Edit Item"
-
-      assert_patch(index_live, ~p"/items/#{item}/edit")
-
-      assert index_live
-             |> form("#item-form", item: @invalid_attrs)
-             |> render_change() =~ "can&#39;t be blank"
-
-      assert index_live
-             |> form("#item-form", item: @update_attrs)
-             |> render_submit()
-
-      assert_patch(index_live, ~p"/items")
-
-      html = render(index_live)
-      assert html =~ "Item updated successfully"
-      assert html =~ "some updated name"
-    end
-
-    test "deletes item in listing", %{conn: conn, item: item} do
-      {:ok, index_live, _html} = live(conn, ~p"/items")
-
-      assert index_live |> element("#items-#{item.id} a", "Delete") |> render_click()
-      refute has_element?(index_live, "#items-#{item.id}")
-    end
+    assert render(view) =~ item.name
   end
 
-  describe "Show" do
-    setup [:create_item]
+  test "dashboard item editor shows both collection sides", %{conn: conn} do
+    admin = admin_fixture()
+    collection = collection_fixture()
+    left = item_fixture(collection, %{side: :left, name: "Person in editor"})
+    right = item_fixture(collection, %{side: :right, name: "Task in editor"})
 
-    test "displays item", %{conn: conn, item: item} do
-      {:ok, _show_live, html} = live(conn, ~p"/items/#{item}")
+    conn = init_test_session(conn, %{"current_user" => admin})
+    {:ok, view, _html} = live(conn, ~p"/dashboard")
 
-      assert html =~ "Show Item"
-      assert html =~ item.name
-    end
+    view
+    |> element("button", "Edit items")
+    |> render_click()
 
-    test "updates item within modal", %{conn: conn, item: item} do
-      {:ok, show_live, _html} = live(conn, ~p"/items/#{item}")
-
-      assert show_live |> element("a", "Edit") |> render_click() =~
-               "Edit Item"
-
-      assert_patch(show_live, ~p"/items/#{item}/show/edit")
-
-      assert show_live
-             |> form("#item-form", item: @invalid_attrs)
-             |> render_change() =~ "can&#39;t be blank"
-
-      assert show_live
-             |> form("#item-form", item: @update_attrs)
-             |> render_submit()
-
-      assert_patch(show_live, ~p"/items/#{item}")
-
-      html = render(show_live)
-      assert html =~ "Item updated successfully"
-      assert html =~ "some updated name"
-    end
+    html = render(view)
+    assert html =~ left.name
+    assert html =~ right.name
   end
 end

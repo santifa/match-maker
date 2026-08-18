@@ -14,6 +14,7 @@ defmodule MatchMakerWeb.DashboardLive do
      |> assign(:show_modal, false)
      |> assign(:show_item_modal, false)
      |> assign(:show_matches_modal, false)
+     |> assign(:matches, [])
      |> assign(:form_action, :new)
      |> assign(:collection, %Collections.Collection{})}
   end
@@ -50,7 +51,8 @@ defmodule MatchMakerWeb.DashboardLive do
   def handle_event("close_matches_modal", _, socket) do
     {:noreply,
      socket
-     |> assign(:show_matches_modal, false)}
+     |> assign(:show_matches_modal, false)
+     |> assign(:matches, [])}
   end
 
   def handle_event("new_collection", _, socket) do

@@ -20,7 +20,13 @@ defmodule MatchMaker.CollectionsTest do
     end
 
     test "create_collection/1 with valid data creates a collection" do
-      valid_attrs = %{name: "some name", description: "some description", webhook_url: "https://ex.com", webhook_template: "some webhook_template", enabled: true}
+      valid_attrs = %{
+        name: "some name",
+        description: "some description",
+        webhook_url: "https://ex.com",
+        webhook_template: "some webhook_template",
+        enabled: true
+      }
 
       assert {:ok, %Collection{} = collection} = Collections.create_collection(valid_attrs)
       assert collection.name == "some name"
@@ -35,9 +41,17 @@ defmodule MatchMaker.CollectionsTest do
 
     test "update_collection/2 with valid data updates the collection" do
       collection = collection_fixture()
-      update_attrs = %{name: "some updated name", description: "some updated description", webhook_url: "https://ex.com", webhook_template: "some updated webhook_template"}
 
-      assert {:ok, %Collection{} = collection} = Collections.update_collection(collection, update_attrs)
+      update_attrs = %{
+        name: "some updated name",
+        description: "some updated description",
+        webhook_url: "https://ex.com",
+        webhook_template: "some updated webhook_template"
+      }
+
+      assert {:ok, %Collection{} = collection} =
+               Collections.update_collection(collection, update_attrs)
+
       assert collection.name == "some updated name"
       assert collection.description == "some updated description"
       assert collection.webhook_url == "https://ex.com"
@@ -46,7 +60,10 @@ defmodule MatchMaker.CollectionsTest do
 
     test "update_collection/2 with invalid data returns error changeset" do
       collection = collection_fixture()
-      assert {:error, %Ecto.Changeset{}} = Collections.update_collection(collection, @invalid_attrs)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Collections.update_collection(collection, @invalid_attrs)
+
       assert collection == Collections.get_collection!(collection.id)
     end
 
@@ -59,6 +76,33 @@ defmodule MatchMaker.CollectionsTest do
     test "change_collection/1 returns a collection changeset" do
       collection = collection_fixture()
       assert %Ecto.Changeset{} = Collections.change_collection(collection)
+    end
+  end
+
+  describe "pair history" do
+    import MatchMaker.CollectionsFixtures
+
+    test "counts assignments for the requested collection" do
+      collection = collection_fixture()
+      other_collection = collection_fixture()
+      left = item_fixture(collection, %{side: :left})
+      right = item_fixture(collection, %{side: :right})
+      other_left = item_fixture(other_collection, %{side: :left})
+      other_right = item_fixture(other_collection, %{side: :right})
+
+      assert {:ok, _} = Collections.create_match(collection, [{right.id, left.id}])
+      assert {:ok, _} = Collections.create_match(collection, [{right.id, left.id}])
+
+      assert {:ok, _} =
+               Collections.create_match(other_collection, [{other_right.id, other_left.id}])
+
+      assert Collections.list_pair_history(collection.id) == %{{left.id, right.id} => 2}
+    end
+
+    test "returns an empty map when the collection has no matches" do
+      collection = collection_fixture()
+
+      assert Collections.list_pair_history(collection.id) == %{}
     end
   end
 
@@ -81,7 +125,14 @@ defmodule MatchMaker.CollectionsTest do
 
     test "create_item/1 with valid data creates a item" do
       collection = collection_fixture()
-      valid_attrs = %{name: "some name", description: "some description", side: :left, enabled: true, collection_id: collection.id}
+
+      valid_attrs = %{
+        name: "some name",
+        description: "some description",
+        side: :left,
+        enabled: true,
+        collection_id: collection.id
+      }
 
       assert {:ok, %Item{} = item} = Collections.create_item(valid_attrs)
       assert item.name == "some name"
@@ -175,13 +226,23 @@ defmodule MatchMaker.CollectionsTest do
     test "cron_interval above 1_000 is invalid" do
       collection = collection_changeset_fixture()
       changeset = Collections.change_collection(collection, %{cron_interval: 2_000})
-      assert changeset.errors == [cron_interval: {"must be less than or equal to %{number}", [{:validation, :number}, {:kind, :less_than_or_equal_to}, {:number, 1000}]}]
+
+      assert changeset.errors == [
+               cron_interval:
+                 {"must be less than or equal to %{number}",
+                  [{:validation, :number}, {:kind, :less_than_or_equal_to}, {:number, 1000}]}
+             ]
     end
 
     test "cron_interval below 0 is invalid" do
       collection = collection_changeset_fixture()
       changeset = Collections.change_collection(collection, %{cron_interval: -1})
-      assert changeset.errors == [cron_interval: {"must be greater than or equal to %{number}", [{:validation, :number}, {:kind, :greater_than_or_equal_to}, {:number, 0}]}]
+
+      assert changeset.errors == [
+               cron_interval:
+                 {"must be greater than or equal to %{number}",
+                  [{:validation, :number}, {:kind, :greater_than_or_equal_to}, {:number, 0}]}
+             ]
     end
 
     test "cron_interval in bounds passes" do
@@ -190,19 +251,47 @@ defmodule MatchMaker.CollectionsTest do
       assert changeset.valid?
     end
 
+    test "matching_algorithm accepts supported values" do
+      collection = collection_changeset_fixture()
+
+      assert Collections.change_collection(collection, %{
+               matching_algorithm: :greedy_history_aware
+             }).valid?
+
+      assert Collections.change_collection(collection, %{
+               matching_algorithm: :randomized_round_robin
+             }).valid?
+    end
+
+    test "matching_algorithm rejects unsupported values" do
+      collection = collection_changeset_fixture()
+      changeset = Collections.change_collection(collection, %{matching_algorithm: "unsupported"})
+
+      refute changeset.valid?
+      assert Keyword.has_key?(changeset.errors, :matching_algorithm)
+    end
+
     test "cron_counter below 0 is invalid" do
       collection = collection_changeset_fixture()
       changeset = Collections.change_collection(collection, %{cron_counter: -1})
-      assert changeset.errors == [cron_counter: {"must be greater than or equal to %{number}", [{:validation, :number}, {:kind, :greater_than_or_equal_to}, {:number, 0}]}]
+
+      assert changeset.errors == [
+               cron_counter:
+                 {"must be greater than or equal to %{number}",
+                  [{:validation, :number}, {:kind, :greater_than_or_equal_to}, {:number, 0}]}
+             ]
     end
 
     test "collection names are unique" do
       collection = collection_fixture()
       attrs = Map.from_struct(collection)
       assert {:error, changeset} = Collections.create_collection(attrs)
-      assert changeset.errors == [name: {"has already been taken",
-           [constraint: :unique, constraint_name: "collections_name_index"]}
-        ]
+
+      assert changeset.errors == [
+               name:
+                 {"has already been taken",
+                  [constraint: :unique, constraint_name: "collections_name_index"]}
+             ]
     end
   end
 

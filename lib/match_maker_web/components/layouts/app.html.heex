@@ -23,13 +23,22 @@
         </:trigger>
         <:content>
           <%= if @current_user.role == "admin" do %>
-          <.button icon="hero-cog-6-tooth" class="w-full">
-            <.link title="Settings" href={~p"/dashboard/settings"}>Settings</.link>
-          </.button>
+          <.button_link
+            title="Settings"
+            href={~p"/dashboard/settings"}
+            icon="hero-cog-6-tooth"
+            full_width
+            class="flex justify-start"
+          />
           <% end %>
-          <.button icon="hero-arrow-left-circle" class="w-full">
-          <.link title="Logout" href={~p"/auth/logout"} method="delete">Logout</.link>
-        </.button>
+          <.button_link
+            title="Logout"
+            href={~p"/auth/logout"}
+            method="delete"
+            icon="hero-arrow-left-circle"
+            full_width
+            class="flex justify-start"
+          />
         </:content>
       </.dropdown>
 

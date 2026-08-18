@@ -1,0 +1,21 @@
+# AGENTS.md
+- Phoenix/Elixir app (`MatchMaker`) using SQLite/Ecto, LiveView, Tailwind, and esbuild.
+- Setup dependencies/db/assets with `mix setup` from the repository root.
+- Start locally with `mix phx.server` or `iex -S mix phx.server`.
+- Run all tests with `mix test` (alias creates/migrates the test SQLite DB first).
+- Run one test file with `mix test test/match_maker/collections_test.exs`.
+- Run one test by line with `mix test test/match_maker/collections_test.exs:22`.
+- Format Elixir/HEEx with `mix format`; check formatting with `mix format --check-formatted`.
+- Lint with `mix credo` (Credo is available in dev/test dependencies).
+- Compile-check with `mix compile --warnings-as-errors` before larger changes.
+- Build frontend assets with `mix assets.build`; production assets with `mix assets.deploy`.
+- Keep code under `lib/match_maker` for contexts/schemas and `lib/match_maker_web` for web/LiveView.
+- Use Phoenix context style: public functions return `{:ok, struct}` or `{:error, changeset}` for persistence.
+- Prefer `alias` for project modules, keep imports minimal, and group aliases near the top after `use`.
+- Follow Elixir naming: `snake_case` functions/vars, `PascalCase` modules, predicate names ending in `?`.
+- Use pipelines for transformations, but keep steps readable; avoid overly clever one-liners.
+- Validate user input in Ecto changesets; surface errors through changesets/flash instead of raising.
+- Reserve bang functions like `get_collection!/1` for expected Phoenix lookup failures.
+- HEEx templates/components should use Phoenix function components and Tailwind utility classes consistently.
+- Tests use ExUnit with `MatchMaker.DataCase`/`ConnCase` and fixtures in `test/support/fixtures`.
+- Do not commit secrets or local DB dumps; treat `calimoto-service-account.json` and `*.db*` files as sensitive.

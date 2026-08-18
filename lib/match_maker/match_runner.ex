@@ -15,8 +15,14 @@ defmodule MatchMaker.MatchRunner do
         {:error, "Not enough tasks for a match"}
 
       {left_items, right_items} ->
-        right_items = Enum.shuffle(right_items)
-        assignments = assign_items(left_items, right_items)
+        algorithm = matching_algorithm(collection)
+
+        history =
+          if algorithm == :greedy_history_aware,
+            do: Collections.list_pair_history(collection.id),
+            else: %{}
+
+        assignments = assign_items(algorithm, left_items, right_items, history)
 
         with :ok <- validate_all_pairs(collection, assignments) do
           match = Collections.create_match(collection, assignments)
@@ -26,18 +32,59 @@ defmodule MatchMaker.MatchRunner do
     end
   end
 
-  defp assign_items(left_items, right_items) do
+  defp matching_algorithm(%{matching_algorithm: algorithm})
+       when algorithm in [:randomized_round_robin, :greedy_history_aware],
+       do: algorithm
+
+  defp matching_algorithm(_collection), do: :randomized_round_robin
+
+  defp assign_items(:randomized_round_robin, left_items, right_items, _history) do
     right_items = for i <- right_items, i.enabled, do: i
     left_items = for i <- left_items, i.enabled, do: i
 
-    # multiple left hand sides are allowed but only if all are chosen at least once
+    # Multiple left-hand sides are allowed, but all are chosen at least once when
+    # there are enough right-hand sides.
     left_items =
       left_items
-      |> Enum.shuffle
-      |> Stream.cycle
+      |> Enum.shuffle()
+      |> Stream.cycle()
       |> Enum.take(length(right_items))
 
+    right_items = Enum.shuffle(right_items)
     Enum.zip_with(right_items, left_items, fn r, l -> {r.id, l.id} end)
+  end
+
+  defp assign_items(:greedy_history_aware, left_items, right_items, history) do
+    right_items
+    |> Enum.shuffle()
+    |> Enum.reduce({MapSet.new(), []}, fn right, {used_left_ids, assignments} ->
+      available_left_items = Enum.reject(left_items, &MapSet.member?(used_left_ids, &1.id))
+      candidates = if available_left_items == [], do: left_items, else: available_left_items
+
+      left =
+        candidates
+        |> Enum.map(fn candidate ->
+          {Map.get(history, {candidate.id, right.id}, 0), candidate}
+        end)
+        |> choose_lowest_cost()
+
+      {
+        MapSet.put(used_left_ids, left.id),
+        [{right.id, left.id} | assignments]
+      }
+    end)
+    |> elem(1)
+    |> Enum.reverse()
+  end
+
+  defp choose_lowest_cost(candidates) do
+    lowest_cost = candidates |> Enum.map(&elem(&1, 0)) |> Enum.min()
+
+    candidates
+    |> Enum.filter(&(elem(&1, 0) == lowest_cost))
+    |> Enum.shuffle()
+    |> hd()
+    |> elem(1)
   end
 
   defp validate_all_pairs(collection, assignments) do

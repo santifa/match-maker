@@ -13,15 +13,22 @@ defmodule MatchMaker.Collections.Collection do
     field :last_matched_at, :utc_datetime_usec
     field :enabled, :boolean, default: true
 
+    field :matching_algorithm, Ecto.Enum,
+      values: [
+        randomized_round_robin: "randomized_round_robin",
+        greedy_history_aware: "greedy_history_aware"
+      ],
+      default: :randomized_round_robin
+
     has_many :items, MatchMaker.Collections.Item, on_delete: :delete_all
 
     has_many :left_items, MatchMaker.Collections.Item,
-             foreign_key: :collection_id,
-             where: [side: :left]
+      foreign_key: :collection_id,
+      where: [side: :left]
 
     has_many :right_items, MatchMaker.Collections.Item,
-             foreign_key: :collection_id,
-             where: [side: :right]
+      foreign_key: :collection_id,
+      where: [side: :right]
 
     has_many :matches, MatchMaker.Collections.Match
 
@@ -39,7 +46,8 @@ defmodule MatchMaker.Collections.Collection do
       :cron_expression,
       :enabled,
       :cron_interval,
-      :cron_counter
+      :cron_counter,
+      :matching_algorithm
     ])
     |> validate_required([:name, :enabled])
     |> validate_length(:name, max: 255)
@@ -75,8 +83,8 @@ defmodule MatchMaker.Collections.Collection do
   defimpl Jason.Encoder, for: [__MODULE__] do
     def encode(struct, opts) do
       Enum.reduce(Map.from_struct(struct), %{}, fn
-        ({_k, %Ecto.Association.NotLoaded{}}, acc) -> acc
-        ({k, v}, acc) -> Map.reject(acc, fn {k, _v} -> k === :__meta__ end) |> Map.put(k, v)
+        {_k, %Ecto.Association.NotLoaded{}}, acc -> acc
+        {k, v}, acc -> Map.reject(acc, fn {k, _v} -> k === :__meta__ end) |> Map.put(k, v)
       end)
       |> Jason.Encode.map(opts)
     end

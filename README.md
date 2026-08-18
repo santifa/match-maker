@@ -72,12 +72,45 @@ Data model overview:
                                           └── belongs_to → [right_item]
 ```
 
-## Matching algorithm
+## Matching algorithms
 
-The current algorithm assigns each enabled task to one enabled person. Tasks are
-shuffled; enabled people are shuffled and cycled as needed. If there are fewer people
-than tasks, people may be assigned more than once. If there are more people than tasks,
-some people may be unassigned in that run.
+Each collection can select its matching algorithm in the collection settings. The
+available algorithms are `Randomized round-robin` (the default) and `Greedy
+history-aware`.
+
+### Randomized round-robin
+
+This algorithm assigns every enabled task to exactly one enabled person. Before
+assigning, both the task list and the person list are shuffled, so repeated runs do not
+produce a predictable ordering. The shuffled people are then cycled and paired with the
+shuffled tasks.
+
+This gives the following behavior:
+
+* If there are at least as many people as tasks, each task gets a different person, but
+  some people may be unassigned in that run.
+* If there are fewer people than tasks, the people list wraps around and people may be
+  assigned multiple tasks.
+* When there are at least as many tasks as people, every enabled person is used at least
+  once.
+* Disabled people and tasks are excluded before assignment.
+* Previous matches are not considered, so repeat person/task pairs are possible.
+
+### Greedy history-aware
+
+This algorithm uses the existing match history for the same collection to reduce repeat
+person/task pairs. For each task, it first prefers people who have not yet been used in
+the current run. Candidates are then ranked by how many times that person/task pair has
+appeared in previous matches. Pairs with fewer historical uses are preferred, and ties
+are randomized.
+
+The strategy preserves the same cardinality behavior as randomized round-robin: every
+enabled task is assigned, every enabled person is used before people are reused when
+there are enough tasks, and repeats are allowed when they are unavoidable. With no
+history, it behaves like a randomized assignment with the same coverage rules.
+
+Cron jobs only run for enabled collections. `cron_interval` can skip scheduled runs;
+`0` means every cron trigger runs.
 
 Cron jobs only run for enabled collections. `cron_interval` can skip scheduled runs;
 `0` means every cron trigger runs.
@@ -86,4 +119,4 @@ Cron jobs only run for enabled collections. `cron_interval` can skip scheduled r
 
 * [ ] Finish exposing historical matchings in the dashboard UI
 * [ ] Implement and expose webhook template rendering
-* [ ] Add other matching algorithms
+* [ ] Improve history-aware matching fairness and reporting

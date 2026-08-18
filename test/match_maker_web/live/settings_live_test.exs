@@ -1,5 +1,5 @@
 defmodule MatchMakerWeb.SettingsLiveTest do
-  use MatchMakerWeb.ConnCase, async: true
+  use MatchMakerWeb.ConnCase
 
   import Phoenix.LiveViewTest
   import MatchMaker.AccountsFixtures

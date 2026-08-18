@@ -55,6 +55,7 @@ defmodule MatchMaker.MatchRunnerTest do
       collection = collection_fixture()
       left_one = item_fixture(collection, %{name: "Left 1", side: :left})
       left_two = item_fixture(collection, %{name: "Left 2", side: :left})
+
       Enum.each(1..3, fn idx -> item_fixture(collection, %{name: "Task #{idx}", side: :right}) end)
 
       collection = collection_with_items(collection)
@@ -75,9 +76,14 @@ defmodule MatchMaker.MatchRunnerTest do
     test "ignores disabled participants and tasks" do
       collection = collection_fixture()
       active_left = item_fixture(collection, %{name: "Active left", side: :left})
-      _inactive_left = item_fixture(collection, %{name: "Inactive left", enabled: false, side: :left})
-      active_right = item_fixture(collection,  %{name: "Active right", side: :right})
-      _inactive_right = item_fixture(collection, %{name: "Inactive right", enabled: false, side: :right})
+
+      _inactive_left =
+        item_fixture(collection, %{name: "Inactive left", enabled: false, side: :left})
+
+      active_right = item_fixture(collection, %{name: "Active right", side: :right})
+
+      _inactive_right =
+        item_fixture(collection, %{name: "Inactive right", enabled: false, side: :right})
 
       collection = collection_with_items(collection)
 
@@ -91,6 +97,32 @@ defmodule MatchMaker.MatchRunnerTest do
       assert [%MatchAssignment{left_item_id: left_id, right_item_id: right_id}] = assignments
       assert left_id == active_left.id
       assert right_id == active_right.id
+    end
+
+    test "greedy history-aware matching avoids previous pairs when possible" do
+      collection = collection_fixture()
+      left_one = item_fixture(collection, %{name: "Left 1", side: :left})
+      left_two = item_fixture(collection, %{name: "Left 2", side: :left})
+      right_one = item_fixture(collection, %{name: "Task 1", side: :right})
+      right_two = item_fixture(collection, %{name: "Task 2", side: :right})
+
+      assert {:ok, _} = Collections.create_match(collection, [{right_one.id, left_one.id}])
+      assert {:ok, _} = Collections.create_match(collection, [{right_two.id, left_two.id}])
+
+      assert {:ok, collection} =
+               Collections.update_collection(collection, %{
+                 matching_algorithm: :greedy_history_aware
+               })
+
+      assert {:ok, match} = MatchRunner.run(collection_with_items(collection))
+
+      assignments =
+        MatchAssignment
+        |> where([ma], ma.match_id == ^match.id)
+        |> Repo.all()
+        |> MapSet.new(&{&1.left_item_id, &1.right_item_id})
+
+      assert assignments == MapSet.new([{left_one.id, right_two.id}, {left_two.id, right_one.id}])
     end
 
     test "returns validation error when a pair spans collections" do

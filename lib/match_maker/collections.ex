@@ -257,6 +257,19 @@ defmodule MatchMaker.Collections do
     end
   end
 
+  def list_pair_history(collection_id) do
+    MatchAssignment
+    |> join(:inner, [assignment], match in assoc(assignment, :match))
+    |> where([_assignment, match], match.collection_id == ^collection_id)
+    |> group_by([assignment, _match], [assignment.left_item_id, assignment.right_item_id])
+    |> select(
+      [assignment, _match],
+      {{assignment.left_item_id, assignment.right_item_id}, count(assignment.id)}
+    )
+    |> Repo.all()
+    |> Map.new()
+  end
+
   def validate_item_pair(%Match{} = match, %Item{} = left, %Item{} = right) do
     cond do
       left.collection_id != right.collection_id ->
@@ -330,6 +343,7 @@ defmodule MatchMaker.Collections do
     Repo.transaction(fn ->
       Enum.map(collections, fn attrs ->
         attrs = attrs |> Map.take(@allowed_fields)
+
         case create_collection(attrs) do
           {:ok, col} -> col
           {:error, changeset} -> Repo.rollback({:invalid, changeset})

@@ -146,7 +146,7 @@ defmodule MatchMakerWeb.Components.Modal do
                   {@title}
                 </div>
                 <button
-                  phx-click={JS.exec("data-cancel", to: "##{@id}")}
+                  phx-click={@on_cancel}
                   type="button"
                   class={["p-2 hover:opacity-60", @close_class]}
                   aria-label={gettext("close")}
