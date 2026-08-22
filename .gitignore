@@ -38,4 +38,8 @@ npm-debug.log
 # Database files
 *.db
 *.db-*
+*.db.*
+*.sql
 
+# Sensitive information
+*account.json

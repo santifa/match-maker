@@ -18,7 +18,8 @@ It supports:
 To start the Phoenix server locally:
 
 * Clone the repository
-* Run `mix setup` to install dependencies, create/migrate the SQLite DB, and build assets
+* Run `mix setup` to install dependencies, create/migrate the SQLite DB, seed it,
+  and build assets
 * Start Phoenix with `mix phx.server` or `iex -S mix phx.server`
 
 Visit [`localhost:4000`](http://localhost:4000) in your browser.
@@ -35,6 +36,16 @@ The dashboard uses Google OAuth via Ueberauth. Configure:
 The first user to sign in becomes an admin. Admins can manage users and import/export
 collections under `/dashboard/settings`.
 
+## Routes
+
+* `/` - landing page
+* `/dashboard` - authenticated dashboard
+* `/dashboard/settings` - authenticated admin settings
+* `/collections/export/json` - admin-only collection JSON export
+* `/auth/:provider` - OAuth request
+* `/auth/:provider/callback` - OAuth callback (GET or POST)
+* `/auth/logout` - logout
+
 ## Development
 
 Useful commands:
@@ -47,15 +58,17 @@ Useful commands:
 
 ## Deployment
 
-Production expects these environment variables:
+To build and run a production release:
 
-* `SECRET_KEY_BASE`
-* `DATABASE_URL` - SQLite database URL/path
-* `PHX_HOST`
-* `PORT`
-* Google OAuth variables listed above
-
-Optional: `POOL_SIZE`, `DNS_CLUSTER_QUERY`.
+* Set the required `SECRET_KEY_BASE` and `DATABASE_PATH` environment variables.
+  `DATABASE_PATH` is the SQLite database path.
+* Optionally set `PHX_HOST` (default: `example.com`) and `PORT` (default: `4000`).
+* Optionally set `POOL_SIZE` and `DNS_CLUSTER_QUERY`.
+* Set the Google OAuth variables listed above.
+* Run `mix assets.deploy` during the build, then build the release with
+  `MIX_ENV=prod mix release`.
+* Before starting the release, run `bin/match_maker migrate`. This step is mandatory.
+* Start the release with `bin/match_maker server`; this enables `PHX_SERVER`.
 
 ## Technical
 
@@ -112,11 +125,7 @@ history, it behaves like a randomized assignment with the same coverage rules.
 Cron jobs only run for enabled collections. `cron_interval` can skip scheduled runs;
 `0` means every cron trigger runs.
 
-Cron jobs only run for enabled collections. `cron_interval` can skip scheduled runs;
-`0` means every cron trigger runs.
-
 ## Open points
 
-* [ ] Finish exposing historical matchings in the dashboard UI
 * [ ] Implement and expose webhook template rendering
 * [ ] Improve history-aware matching fairness and reporting

@@ -329,6 +329,7 @@ defmodule MatchMakerWeb.Components.Table do
   attr :class, :string, default: nil, doc: "Custom CSS class for additional styling"
 
   attr :rest, :global,
+    include: ~w(colspan),
     doc:
       "Global attributes can define defaults which are merged with attributes provided by the caller"
 

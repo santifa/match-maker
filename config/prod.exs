@@ -6,7 +6,7 @@ import Config
 # which you should run after static files are built and
 # before starting your production server.
 config :match_maker, MatchMakerWeb.Endpoint,
-  cache_static_manifest: "priv/static/cache_manifest.json"
+       cache_static_manifest: "priv/static/cache_manifest.json"
 
 # Configures Swoosh API Client
 config :swoosh, api_client: Swoosh.ApiClient.Finch, finch_name: MatchMaker.Finch
@@ -20,20 +20,20 @@ config :logger, level: :info
 # Runtime production configuration, including reading
 # of environment variables, is done on config/runtime.exs.
 
-config :match_maker, MatchMakerWeb.Endpoint,
-  http: [port: {:system, "PORT"}], # Possibly not needed, but doesn't hurt
-  url: [port: 443, scheme: "https"],
-  secret_key_base: Map.fetch!(System.get_env(), "SECRET_KEY_BASE"),
-  server: true,
-  force_ssl: [
-    rewrite_on: [:x_forwarded_proto],
-    # Optional, for HSTS:
-    hsts: true,
-    host: nil
-  ]
+# config :match_maker, MatchMakerWeb.Endpoint,
+#        # Possibly not needed, but doesn't hurt
+#        http: [port: {:system, "PORT"}],
+#        url: [port: 443, scheme: "https"],
+#        server: true,
+#        force_ssl: [
+#          rewrite_on: [:x_forwarded_proto],
+#          # Optional, for HSTS:
+#          hsts: true,
+#          host: nil
+#        ]
 
-config :match_maker, MatchMaker.Repo,
-       adapter: Ecto.Adapters.Postgres,
-       url: System.get_env("DATABASE_URL"),
-       ssl: true,
-       pool_size: 2 # Free tier db only allows 4 connections. Rolling deploys need pool_size*(n+1) connections where n is the number of app replicas.
+# config :match_maker, MatchMaker.Repo,
+#        adapter: Ecto.Adapters.Postgres,
+#        url: System.get_env("DATABASE_URL"),
+#        ssl: true,
+#        pool_size: 2 # Free tier db only allows 4 connections. Rolling deploys need pool_size*(n+1) connections where n is the number of app replicas.
