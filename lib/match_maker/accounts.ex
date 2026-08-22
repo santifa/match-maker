@@ -28,6 +28,7 @@ defmodule MatchMaker.Accounts do
     case get_user_by_google_uid(google_uid) do
       %User{} = user ->
         {:ok, user}
+
       nil ->
         # Create a new user
         with {:ok, mail} <- fetch_email(auth),
@@ -83,7 +84,8 @@ defmodule MatchMaker.Accounts do
   defp allowed_email(mail) do
     allowed_emails = Application.fetch_env!(:match_maker, :allowed_domains)
 
-    mail_domain = mail |> String.split("@") |> List.last
+    mail_domain = mail |> String.split("@") |> List.last()
+
     case Enum.member?(allowed_emails, mail_domain) do
       true -> {:ok, mail}
       false -> {:error, :invalid_domain}
@@ -94,6 +96,7 @@ defmodule MatchMaker.Accounts do
   def is_admin?(user), do: user.role == "admin"
 
   def is_user?(nil), do: false
+
   def is_user?(user) do
     case Repo.get(User, user.id) do
       %User{} = _ -> true

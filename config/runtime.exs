@@ -21,24 +21,25 @@ if System.get_env("PHX_SERVER") do
 end
 
 config :ueberauth, Ueberauth.Strategy.Google.OAuth,
-       client_id: {System, :get_env, ["GOOGLE_CLIENT_ID"]},
-       client_secret: {System, :get_env, ["GOOGLE_CLIENT_SECRET"]},
-       redirect_uri: System.get_env("GOOGLE_REDIRECT_URI")
+  client_id: {System, :get_env, ["GOOGLE_CLIENT_ID"]},
+  client_secret: {System, :get_env, ["GOOGLE_CLIENT_SECRET"]},
+  redirect_uri: System.get_env("GOOGLE_REDIRECT_URI")
 
-config :match_maker, :allowed_domains,
+config :match_maker,
+       :allowed_domains,
        String.split(System.get_env("GOOGLE_ALLOWED_DOMAIN") || "", ",", trim: true)
 
 if config_env() == :prod do
   database_path =
     System.get_env("DATABASE_PATH") ||
-    raise """
-      environment variable DATABASE_PATH is missing.
-      For example: /etc/match_maker/match_maker.db
-    """
+      raise """
+        environment variable DATABASE_PATH is missing.
+        For example: /etc/match_maker/match_maker.db
+      """
 
   config :match_maker, MatchMaker.Repo,
-         database: database_path,
-         pool_size: String.to_integer(System.get_env("POOL_SIZE") || "2")
+    database: database_path,
+    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "2")
 
   # The secret key base is used to sign/encrypt cookies and other secrets.
   # A default value is used in config/dev.exs and config/test.exs but you
@@ -47,10 +48,10 @@ if config_env() == :prod do
   # variable instead.
   secret_key_base =
     System.get_env("SECRET_KEY_BASE") ||
-    raise """
-      environment variable SECRET_KEY_BASE is missing.
-      You can generate one by calling: mix phx.gen.secret
-    """
+      raise """
+        environment variable SECRET_KEY_BASE is missing.
+        You can generate one by calling: mix phx.gen.secret
+      """
 
   host = System.get_env("PHX_HOST") || "example.com"
   port = String.to_integer(System.get_env("PORT") || "4000")
@@ -58,16 +59,22 @@ if config_env() == :prod do
   config :match_maker, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
   config :match_maker, MatchMakerWeb.Endpoint,
-         url: [host: host, port: 443, scheme: "https"],
-         http: [
-           # Enable IPv6 and bind on all interfaces.
-           # Set it to  {0, 0, 0, 0, 0, 0, 0, 1} for local network only access.
-           # See the documentation on https://hexdocs.pm/bandit/Bandit.html#t:options/0
-           # for details about using IPv6 vs IPv4 and loopback vs public addresses.
-           ip: {0, 0, 0, 0, 0, 0, 0, 0},
-           port: port
-         ],
-         secret_key_base: secret_key_base
+    url: [host: host, port: 443, scheme: "https"],
+    http: [
+      # Enable IPv6 and bind on all interfaces.
+      # Set it to  {0, 0, 0, 0, 0, 0, 0, 1} for local network only access.
+      # See the documentation on https://hexdocs.pm/bandit/Bandit.html#t:options/0
+      # for details about using IPv6 vs IPv4 and loopback vs public addresses.
+      ip: {0, 0, 0, 0, 0, 0, 0, 0},
+      port: port
+    ],
+    secret_key_base: secret_key_base,
+    force_ssl: [
+      rewrite_on: [:x_forwarded_proto],
+      # Optional, for HSTS:
+      hsts: true,
+      host: nil
+    ]
 
   # ## SSL Support
   #

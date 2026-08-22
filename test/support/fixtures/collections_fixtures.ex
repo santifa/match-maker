@@ -38,15 +38,16 @@ defmodule MatchMaker.CollectionsFixtures do
       |> Enum.into(%{
         name: unique_item_name(),
         description: "A test item",
-        side: :left, # Enum default
+        # Enum default
+        side: :left,
         enabled: true,
-        collection_id: collection.id # Link to parent
+        # Link to parent
+        collection_id: collection.id
       })
       |> Collections.create_item()
 
     item
   end
-
 
   def collection_changeset_fixture(webhook_url \\ "https://example.com/webhook") do
     %Collection{
@@ -58,5 +59,4 @@ defmodule MatchMaker.CollectionsFixtures do
       enabled: true
     }
   end
-
 end

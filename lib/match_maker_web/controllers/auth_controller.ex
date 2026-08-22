@@ -14,7 +14,6 @@ defmodule MatchMakerWeb.AuthController do
   alias Ueberauth.Strategy.Helpers
   alias MatchMaker.Accounts
 
-
   @doc """
   The live view callback handler for managing user sessions.
 
@@ -42,7 +41,9 @@ defmodule MatchMakerWeb.AuthController do
       true ->
         Phoenix.Component.assign(socket, :current_user, user)
         {:cont, socket}
-      false -> {:halt, redirect_require_login(socket)}
+
+      false ->
+        {:halt, redirect_require_login(socket)}
     end
   end
 

@@ -55,6 +55,5 @@ defmodule MatchMaker.Cron do
     else
       {:disabled, []}
     end
-
   end
 end

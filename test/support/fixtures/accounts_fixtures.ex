@@ -1,5 +1,5 @@
 defmodule MatchMaker.AccountsFixtures do
-	@moduledoc """
+  @moduledoc """
   This module defines test helpers for creating
   users with different roles.
 

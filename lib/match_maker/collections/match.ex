@@ -11,9 +11,9 @@ defmodule MatchMaker.Collections.Match do
 
   @doc false
   def changeset(match, attrs) do
-      match
-      |> cast(attrs, [:collection_id])
-      |> validate_required([:collection_id])
-      |> assoc_constraint(:collection)
+    match
+    |> cast(attrs, [:collection_id])
+    |> validate_required([:collection_id])
+    |> assoc_constraint(:collection)
   end
 end

@@ -13,8 +13,6 @@ defmodule MatchMaker.DataCase do
   by setting `use MatchMaker.DataCase, async: true`, although
   this option is not recommended for other databases.
   """
-alias MatchMaker.Collections.Match
-
   use ExUnit.CaseTemplate
 
   using do

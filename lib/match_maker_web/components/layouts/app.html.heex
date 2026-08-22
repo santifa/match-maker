@@ -14,61 +14,64 @@
 
     <span class="ml-auto">
       <%= if @current_user do %>
-
-      <.dropdown id={"user-menu-#{@current_user.id}"} space="extra_small">
-        <:trigger>
-        <.button icon="hero-user">
-          {@current_user.name}
-        </.button>
-        </:trigger>
-        <:content>
-          <%= if @current_user.role == "admin" do %>
-          <.button_link
-            title="Settings"
-            href={~p"/dashboard/settings"}
-            icon="hero-cog-6-tooth"
-            full_width
-            class="flex justify-start"
-          />
-          <% end %>
-          <.button_link
-            title="Logout"
-            href={~p"/auth/logout"}
-            method="delete"
-            icon="hero-arrow-left-circle"
-            full_width
-            class="flex justify-start"
-          />
-        </:content>
-      </.dropdown>
-
+        <.dropdown id={"user-menu-#{@current_user.id}"} space="extra_small">
+          <:trigger>
+            <.button icon="hero-user">
+              {@current_user.name}
+            </.button>
+          </:trigger>
+          <:content>
+            <%= if @current_user.role == "admin" do %>
+              <.button_link
+                title="Settings"
+                href={~p"/dashboard/settings"}
+                icon="hero-cog-6-tooth"
+                full_width
+                class="flex justify-start"
+              />
+            <% end %>
+            <.button_link
+              title="Logout"
+              href={~p"/auth/logout"}
+              method="delete"
+              icon="hero-arrow-left-circle"
+              full_width
+              class="flex justify-start"
+            />
+          </:content>
+        </.dropdown>
       <% else %>
-
-      <.button icon="hero-arrow-right-circle">
-        <.link title="Google" href={~p"/auth/google"}>Sign in with Google</.link>
-      </.button>
+        <.button icon="hero-arrow-right-circle">
+          <.link title="Google" href={~p"/auth/google"}>Sign in with Google</.link>
+        </.button>
       <% end %>
     </span>
   </header>
 
   <main style="flex: 1">
-      {@inner_content}
+    {@inner_content}
   </main>
 
-  <.toast id="flash-toast" vertical="bottom" horizontal="left" variant="outline-thin" :for={{type, msg} <- @flash}>
+  <.toast
+    :for={{type, msg} <- @flash}
+    id="flash-toast"
+    vertical="bottom"
+    horizontal="left"
+    variant="outline-thin"
+  >
     <div class="flex items-center gap-2 text-xs">
       <%= if type == :error do %>
-      <span class="text-red-700">
-        {msg}
-      </span>
+        <span class="text-red-700">
+          {msg}
+        </span>
       <% else %>
-      <span>
-        {msg}
-      </span>
+        <span>
+          {msg}
+        </span>
       <% end %>
     </div>
   </.toast>
   <.footer variant="transparent" color="dark" text_position="right" padding="medium">
-    &copy; <%= Date.utc_today().year %> MatchMaker. All rights reserved.
+    &copy; {Date.utc_today().year} MatchMaker. All rights reserved.
   </.footer>
 </div>

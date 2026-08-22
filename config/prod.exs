@@ -6,7 +6,7 @@ import Config
 # which you should run after static files are built and
 # before starting your production server.
 config :match_maker, MatchMakerWeb.Endpoint,
-       cache_static_manifest: "priv/static/cache_manifest.json"
+  cache_static_manifest: "priv/static/cache_manifest.json"
 
 # Configures Swoosh API Client
 config :swoosh, api_client: Swoosh.ApiClient.Finch, finch_name: MatchMaker.Finch
@@ -25,12 +25,12 @@ config :logger, level: :info
 #        http: [port: {:system, "PORT"}],
 #        url: [port: 443, scheme: "https"],
 #        server: true,
-#        force_ssl: [
-#          rewrite_on: [:x_forwarded_proto],
-#          # Optional, for HSTS:
-#          hsts: true,
-#          host: nil
-#        ]
+# force_ssl: [
+#   rewrite_on: [:x_forwarded_proto],
+#   # Optional, for HSTS:
+#   hsts: true,
+#   host: nil
+# ]
 
 # config :match_maker, MatchMaker.Repo,
 #        adapter: Ecto.Adapters.Postgres,

@@ -15,7 +15,7 @@ defmodule MatchMakerWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/" , MatchMakerWeb do
+  scope "/", MatchMakerWeb do
     pipe_through :browser
 
     get "/", PageController, :index
@@ -44,8 +44,6 @@ defmodule MatchMakerWeb.Router do
   # scope "/api", MatchMakerWeb do
   #   pipe_through :api
   # end
-
-
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:match_maker, :dev_routes) do

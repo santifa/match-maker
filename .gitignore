@@ -43,3 +43,7 @@ npm-debug.log
 
 # Sensitive information
 *account.json
+.agent-shell/
+
+plan.md
+.tool-versions

@@ -1,5 +1,5 @@
 defmodule MatchMakerWeb.SettingsLive do
-alias MatchMaker.Collections
+  alias MatchMaker.Collections
   use MatchMakerWeb, :live_view
   alias MatchMaker.Accounts
 
@@ -9,13 +9,14 @@ alias MatchMaker.Collections
   def mount(_params, _session, socket) do
     users = Accounts.list_users()
 
-    {:ok, socket
-    |> assign(users: users)
-    |> allow_upload(:file,
-                    accept: ~w(.json),
-                    max_entries: 1,
-                    max_file_size: 5_000_000)
-    }
+    {:ok,
+     socket
+     |> assign(users: users)
+     |> allow_upload(:file,
+                     accept: ~w(.json),
+                     max_entries: 1,
+                     max_file_size: 5_000_000
+     )}
   end
 
   @impl true
@@ -31,7 +32,9 @@ alias MatchMaker.Collections
 
         <:panel>
           <.button>
-            <.link title="Export Collection" target="_blank" navigate={~p"/collections/export/json"}>Export Collections</.link>
+            <.link title="Export Collection" target="_blank" navigate={~p"/collections/export/json"}>
+              Export Collections
+            </.link>
           </.button>
         </:panel>
 
@@ -53,14 +56,26 @@ alias MatchMaker.Collections
               <.td>{user.email}</.td>
               <.td>
                 <%= if user.role == "admin" do %>
-                <.native_select id="role-admin" name="role" space="small" size="small"
-                  phx-click="change_role" phx-value-user_id={user.id}>
+                <.native_select
+                  id="role-admin-#{user.id}"
+                  name="role"
+                  space="small"
+                  size="small"
+                  phx-click="change_role"
+                  phx-value-user_id={user.id}
+                >
                   <:option value="user">User</:option>
                   <:option value="admin" selected>Admin</:option>
                 </.native_select>
                 <% else %>
-                <.native_select id="role-user" name="role" space="small" size="small"
-                  phx-click="change_role" phx-value-user_id={user.id}>
+                <.native_select
+                  id="role-user-#{user.id}"
+                  name="role"
+                  space="small"
+                  size="small"
+                  phx-click="change_role"
+                  phx-value-user_id={user.id}
+                >
                   <:option value="user" selected>User</:option>
                   <:option value="admin">Admin</:option>
                 </.native_select>
@@ -69,7 +84,6 @@ alias MatchMaker.Collections
             </.tr>
             <% end %>
           </.table>
-
         </:panel>
       </.tabs>
     </div>
@@ -81,23 +95,28 @@ alias MatchMaker.Collections
   end
 
   def handle_event("import", _params, socket) do
-    result = consume_uploaded_entries(socket, :file, fn %{path: path}, _entry ->
-      case Collections.import_from_json(path) do
-      {:ok, _} = ok -> {:ok, ok}
-      {:error, _} = err -> {:postpone, err}
-      end
-    end) |> List.first
+    result =
+      consume_uploaded_entries(socket, :file, fn %{path: path}, _entry ->
+        case Collections.import_from_json(path) do
+          {:ok, _} = ok -> {:ok, ok}
+          {:error, _} = err -> {:postpone, err}
+        end
+      end)
+      |> List.first()
 
     case result do
-      {:ok, _} -> {:noreply, put_flash(socket, :info, "Successfully uploaded file")}
+      {:ok, _} ->
+        {:noreply, put_flash(socket, :info, "Successfully uploaded file")}
+
       {:error, err} ->
         case err do
           {:invalid, changeset} ->
-            error = changeset.errors |> List.first |> elem(1) |> elem(0)
+            error = changeset.errors |> List.first() |> elem(1) |> elem(0)
             {:noreply, put_flash(socket, :error, "Failed to upload file: #{error}")}
-          _ -> {:noreply, put_flash(socket, :error, "Failed to upload file: #{err}")}
-        end
 
+          _ ->
+            {:noreply, put_flash(socket, :error, "Failed to upload file: #{err}")}
+        end
     end
   end
 

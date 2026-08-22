@@ -19,7 +19,9 @@ defmodule MatchMakerWeb.PageController do
     user = get_session(conn, :current_user)
 
     case Accounts.is_admin?(user) do
-      false -> render(conn, :index, current_user: nil)
+      false ->
+        render(conn, :index, current_user: nil)
+
       true ->
         data = Collections.list_collections()
         json = Jason.encode!(data)

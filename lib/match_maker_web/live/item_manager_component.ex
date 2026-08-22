@@ -31,6 +31,7 @@ defmodule MatchMakerWeb.ItemManagerComponent do
           <div>
             <.h4 class="mb-4">Personen</.h4>
             <.item_table
+              id="left_items"
               items={@left_items}
               side={:left}
               editing_item={@editing_item}
@@ -45,6 +46,7 @@ defmodule MatchMakerWeb.ItemManagerComponent do
           <div>
             <.h4 class="mb-4">Tasks</.h4>
             <.item_table
+              id="right_items"
               items={@right_items}
               side={:right}
               editing_item={@editing_item}
@@ -84,6 +86,7 @@ defmodule MatchMakerWeb.ItemManagerComponent do
     """
   end
 
+  attr :id, :string
   attr :items, :any
   attr :side, :atom
   attr :editing_item, :any
@@ -95,112 +98,112 @@ defmodule MatchMakerWeb.ItemManagerComponent do
 
   def item_table(assigns) do
     ~H"""
-    <.table header_border="extra_small" rows_border="extra_small" cols_border="extra_small">
+    <.table id={@id} header_border="extra_small" rows_border="extra_small" cols_border="extra_small">
       <:header>Active</:header>
       <:header>Name</:header>
       <:header>Actions</:header>
 
       <%= for item <- @items do %>
-        <.tr>
-          <.td class="w-3">
-            <.input
-              name="item_enabled"
-              type="checkbox"
-              value={item.enabled}
-              phx-click="toggle_item_enabled"
+      <.tr>
+        <.td class="w-3">
+          <.input
+            name="item_enabled"
+            type="checkbox"
+            value={item.enabled}
+            phx-click="toggle_item_enabled"
+            phx-value-id={item.id}
+            phx-target={@myself}
+          />
+        </.td>
+        <.td>
+          <%= if item.description do %>
+          <.tooltip text={item.description} position="right">
+            {item.name}
+          </.tooltip>
+          <% else %>
+          {item.name}
+          <% end %>
+        </.td>
+
+        <.td class="w-5">
+          <.button_group class="outline-thin">
+            <.button
+              phx-click="edit_item"
               phx-value-id={item.id}
               phx-target={@myself}
+              icon="hero-pencil-square"
+              size="extra_small"
+              font_weight="font-light"
             />
+            <.button
+              phx-click="delete_item"
+              phx-value-id={item.id}
+              phx-target={@myself}
+              icon="hero-trash"
+              size="extra_small"
+              font_weight="font-light"
+            />
+          </.button_group>
+        </.td>
+      </.tr>
 
-            <.td>
-              <%= if item.description do %>
-                <.tooltip text={item.description} position="right">
-                  {item.name}
-                </.tooltip>
-              <% else %>
-                {item.name}
-              <% end %>
-            </.td>
-          </.td>
-          <.td class="w-5">
-            <.button_group class="outline-thin">
-              <.button
-                phx-click="edit_item"
-                phx-value-id={item.id}
-                phx-target={@myself}
-                icon="hero-pencil-square"
-                size="extra_small"
-                font_weight="font-light"
-              />
-              <.button
-                phx-click="delete_item"
-                phx-value-id={item.id}
-                phx-target={@myself}
-                icon="hero-trash"
-                size="extra_small"
-                font_weight="font-light"
-              />
-            </.button_group>
-          </.td>
-        </.tr>
+      <%= if @editing_item && @editing_item.id == item.id do %>
+      <.tr>
+        <.td colspan="3">Item bearbeiten</.td>
+      </.tr>
 
-        <%= if @editing_item && @editing_item.id == item.id do %>
-          <.tr>
-            <.td colspan="3">Item bearbeiten</.td>
-          </.tr>
+      <.tr>
+        <.td colspan="3">
+          <.form_wrapper
+            :let={f}
+            for={@editing_changeset}
+            phx-submit="update_item"
+            phx-target={@myself}
+            class="mt-4"
+          >
+            <div class="flex">
+              <.text_field field={f[:name]} placeholder="Name" class="shrink" />
+              <.text_field field={f[:description]} placeholder="Description" class="shrink" />
 
-          <.tr>
-            <.td colspan="3">
-              <.form_wrapper
-                :let={f}
-                for={@editing_changeset}
-                phx-submit="update_item"
-                phx-target={@myself}
-                class="mt-4"
-              >
-                <div class="flex">
-                  <.text_field field={f[:name]} placeholder="Name" class="shrink" />
-                  <.text_field field={f[:description]} placeholder="Description" class="shrink" />
-
-                  <.input type="hidden" field={f[:id]} />
-                  <.button_group class="flex-none">
-                    <.button icon="hero-plus-circle" size="extra_small" font_weight="font-light" />
-                    <.button
-                      phx-click="abort_form"
-                      phx-target={@myself}
-                      icon="hero-x-mark"
-                      size="extra_small"
-                      font_weight="font-light"
-                    />
-                  </.button_group>
-                </div>
-              </.form_wrapper>
-            </.td>
-          </.tr>
-        <% end %>
+              <.input type="hidden" field={f[:id]} />
+              <.button_group class="flex-none">
+                <.button icon="hero-plus-circle" size="extra_small" font_weight="font-light" />
+                <.button
+                  phx-click="abort_form"
+                  phx-target={@myself}
+                  icon="hero-x-mark"
+                  size="extra_small"
+                  font_weight="font-light"
+                />
+              </.button_group>
+            </div>
+          </.form_wrapper>
+        </.td>
+      </.tr>
+      <% end %>
       <% end %>
     </.table>
 
     <%= if @new_item_side == @side do %>
-      <.form_wrapper
-        :let={f}
-        for={@new_changeset}
-        phx-submit="save_item"
-        phx-target={@myself}
-        class="mt-4"
-      >
-        <div class="grid grid-cols-2 gap-4">
-          <.text_field field={f[:name]} placeholder="Name" />
-          <.text_field field={f[:description]} placeholder="Description" />
-        </div>
-        <.input type="hidden" field={f[:side]} value={@side} />
-        <.input type="hidden" field={f[:enabled]} value="true" />
-        <.input type="hidden" field={f[:collection_id]} value={@collection_id} />
-        <div class="mt-4">
-          <.button icon="hero-plus-circle" />
-          <.button phx-click="abort_form" phx-target={@myself} icon="hero-x-mark" />
-        </div>
-      </.form_wrapper>
+    <.form_wrapper
+      :let={f}
+      for={@new_changeset}
+      phx-submit="save_item"
+      phx-target={@myself}
+      class="mt-4"
+    >
+      <div class="grid grid-cols-2 gap-4">
+        <.text_field field={f[:name]} placeholder="Name" />
+        <.text_field field={f[:description]} placeholder="Description" />
+      </div>
+      <.input type="hidden" field={f[:side]} value={@side} />
+      <.input type="hidden" field={f[:enabled]} value="true" />
+      <.input type="hidden" field={f[:collection_id]} value={@collection_id} />
+      <div class="mt-4">
+        <.button icon="hero-plus-circle" />
+        <.button phx-click="abort_form" phx-target={@myself} icon="hero-x-mark" />
+      </div>
+    </.form_wrapper>
     <% end %>
     """
   end
