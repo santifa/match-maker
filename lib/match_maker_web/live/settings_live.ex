@@ -13,9 +13,9 @@ defmodule MatchMakerWeb.SettingsLive do
      socket
      |> assign(users: users)
      |> allow_upload(:file,
-                     accept: ~w(.json),
-                     max_entries: 1,
-                     max_file_size: 5_000_000
+       accept: ~w(.json),
+       max_entries: 1,
+       max_file_size: 5_000_000
      )}
   end
 
@@ -51,37 +51,37 @@ defmodule MatchMakerWeb.SettingsLive do
             <:header>Email</:header>
             <:header>Role</:header>
             <%= for user <- @users do %>
-            <.tr>
-              <.td>{user.name}</.td>
-              <.td>{user.email}</.td>
-              <.td>
-                <%= if user.role == "admin" do %>
-                <.native_select
-                  id="role-admin-#{user.id}"
-                  name="role"
-                  space="small"
-                  size="small"
-                  phx-click="change_role"
-                  phx-value-user_id={user.id}
-                >
-                  <:option value="user">User</:option>
-                  <:option value="admin" selected>Admin</:option>
-                </.native_select>
-                <% else %>
-                <.native_select
-                  id="role-user-#{user.id}"
-                  name="role"
-                  space="small"
-                  size="small"
-                  phx-click="change_role"
-                  phx-value-user_id={user.id}
-                >
-                  <:option value="user" selected>User</:option>
-                  <:option value="admin">Admin</:option>
-                </.native_select>
-                <% end %>
-              </.td>
-            </.tr>
+              <.tr>
+                <.td>{user.name}</.td>
+                <.td>{user.email}</.td>
+                <.td>
+                  <%= if user.role == "admin" do %>
+                    <.native_select
+                      id={"role-admin-#{user.id}"}
+                      name="role"
+                      space="small"
+                      size="small"
+                      phx-click="change_role"
+                      phx-value-user_id={user.id}
+                    >
+                      <:option value="user">User</:option>
+                      <:option value="admin" selected>Admin</:option>
+                    </.native_select>
+                  <% else %>
+                    <.native_select
+                      id={"role-user-#{user.id}"}
+                      name="role"
+                      space="small"
+                      size="small"
+                      phx-click="change_role"
+                      phx-value-user_id={user.id}
+                    >
+                      <:option value="user" selected>User</:option>
+                      <:option value="admin">Admin</:option>
+                    </.native_select>
+                  <% end %>
+                </.td>
+              </.tr>
             <% end %>
           </.table>
         </:panel>
